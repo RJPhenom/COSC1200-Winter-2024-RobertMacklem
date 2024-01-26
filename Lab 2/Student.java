@@ -16,26 +16,32 @@ public class Student {
 
     //Constructor
     public Student(String fName, String lName, int age) {
-        if (lName != null) {
+        //NULL check on last name
+        if (lName != null && lName != "") {
             this.fName = fName;
             this.lName = lName;
         }
 
+        //Throw exception is NULL check failed
         else {
             throw new IllegalArgumentException("lName cannot be NULL. A last name is needed.");
         }
 
+        //Validated age is within acceptable age range
         if (0 <= age && age <= 100) {
             this.age = age;
         }
 
+        //Throw exception if age is out of range
         else {
             throw new IllegalArgumentException("age must be within the range (0-100) inclusive");
         }
     }
 
     public Student(String fName, String lName) {
-        if (lName != null) {
+        //Overload for the main constructor where age is not passed and is instead assigned
+        //a default value of 0, to be set later. Uses the same NULL check on last name.
+        if (lName != null && lName != "") {
             this.fName = fName;
             this.lName = lName;
         }
@@ -44,6 +50,13 @@ public class Student {
             throw new IllegalArgumentException("lName cannot be NULL. A last name is needed.");
         }
 
+        //Age defaults to 0 when not given
+        //*************************************************************************************
+        //LAB 2 QUESTION: this is know as method OVERLOADING, which is when two or more methods
+        //have the same name but different signatures. This helps the readability of code, as
+        //in our oops_concepts.java file we can see we are still constructing the class in this
+        //method, but we are not calling the full constructor which makes our lives easier.
+        //*************************************************************************************
         this.age = 0;
     }
 
@@ -58,12 +71,27 @@ public class Student {
 
     //Setters
     public void setName(String fName, String lName) {
-        this.fName = fName;
-        this.lName = lName;   
+        //Setter uses the same NULL check on last name
+        if (lName != null && lName != "") {
+            this.fName = fName;
+            this.lName = lName;
+        }
+
+        else {
+            throw new IllegalArgumentException("lName cannot be NULL. A last name is needed.");
+        }
     }
 
     public void setAge(int age) {
-        this.age = age;
+        //Setter uses the same age range validation
+        if (0 <= age && age <= 100) {
+            this.age = age;
+        }
+
+        //Throw exception if age is out of range
+        else {
+            throw new IllegalArgumentException("age must be within the range (0-100) inclusive");
+        }
     }
 }
 
