@@ -1,8 +1,20 @@
+//  Author: Robert Macklem
+//  Course: COSC1200-01
+//  Date:   January 19, 2024
+//  Title:  Lab 02
+//
+//  Descr:  Student class file that accompanies oops_concepts.java
+//          as the main file for the project. This file contains the
+//          constructor and methods of the Student class obj.
+
+//Declare class
 public class Student {
+    //Attributes
     private String fName;
     private String lName;
     private int age;
 
+    //Constructor
     public Student(String fName, String lName, int age) {
         if (lName != null) {
             this.fName = fName;
@@ -16,17 +28,19 @@ public class Student {
         this.age = age;
     }
 
+    //Getters
     public String getName() {
         return fName + " " + lName;
     }
 
+    public int getAge() {
+        return age;
+    }
+
+    //Setters
     public void setName(String fName, String lName) {
         this.fName = fName;
         this.lName = lName;   
-    }
-
-    public int getAge() {
-        return age;
     }
 
     public void setAge(int age) {
