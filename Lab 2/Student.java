@@ -22,10 +22,29 @@ public class Student {
         }
 
         else {
-            throw new IllegalArgumentException("lName cannot be NULL.");
+            throw new IllegalArgumentException("lName cannot be NULL. A last name is needed.");
         }
 
-        this.age = age;
+        if (0 <= age && age <= 100) {
+            this.age = age;
+        }
+
+        else {
+            throw new IllegalArgumentException("age must be within the range (0-100) inclusive");
+        }
+    }
+
+    public Student(String fName, String lName) {
+        if (lName != null) {
+            this.fName = fName;
+            this.lName = lName;
+        }
+
+        else {
+            throw new IllegalArgumentException("lName cannot be NULL. A last name is needed.");
+        }
+
+        this.age = 0;
     }
 
     //Getters
