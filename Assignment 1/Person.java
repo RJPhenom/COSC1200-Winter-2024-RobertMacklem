@@ -52,7 +52,11 @@ public class Person {
         //Prep return string var
         String returnMessage = "";
 
-        //TODO: functionality
+        //Adds each line of ouput to the return string using the format method 
+        //to return the value of the field in the given instance.
+        returnMessage += String.format("Name: %s\n", this.name);
+        returnMessage += String.format("Age: %x\n", this.age);
+        returnMessage += String.format("Gender: %c\n", gender);
 
         //Returns the completed message
         return returnMessage;
