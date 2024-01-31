@@ -40,16 +40,21 @@ public class Person {
             System.out.println("Enter your age: ");
             try {
                 myAge = scanner.nextInt();
+                if (myAge < 1 || myAge > 100) { //Check they have a plausible age input (no negative numbers of 999yo's).
+                    System.out.println("\n***INPUT ERROR***\nPlease enter an age within the range 1 to 100 inclusive.\n");
+                    myAge = 0;
+                }
             } 
             
             catch (Exception e) { //if invalid input, prints below and loops
                 System.out.println("\n***INPUT ERROR***\nPlease use whole numbers represented in numeric characters only.\n");
-                scanner.next(); //Consumes the \n and progresses the scanner (Source: https://stackoverflow.com/questions/23450524/java-scanner-doesnt-wait-for-user-input)
+                scanner.next(); //Progresses the scanner, since it does not advasnce when an exception is thrown
             }
         }
 
+        scanner.nextLine(); //Consumes the \n to progress the scanner after nextInt(https://stackoverflow.com/questions/23450524/java-scanner-doesnt-wait-for-user-input)
 
-        //--Gender
+        //--Gender--
         //Setup constants
         final String[] genders = {"M", "F", "X"};
         String errMsg = "\n***INPUT ERROR***\nPlease use a single M, F, or X character to represent your gender (X stands for other).\n";
@@ -60,18 +65,19 @@ public class Person {
         //While loop to get appropriate char to represent gender (male, female, other/nb)
         while (myGenderStr == "") {
             System.out.println("Enter your gender (M, F, or X): ");
-            myGenderStr = scanner.nextLine().toUpperCase();
+            myGenderStr = scanner.nextLine();
+            myGenderStr = myGenderStr.toUpperCase(); //allows user to use m, f, or x if they're lazy
 
             //conditional check that does the actual validation
             if (myGenderStr.length() != 1) { //if they used multiple chars, they fail
                 System.out.println(errMsg);
+                myGenderStr = ""; //Keeps while loop running when input invalid
             }
             
             else if (!Arrays.asList(genders).contains(myGenderStr)) { 
                 System.out.println(errMsg);
+                myGenderStr = ""; //Keeps while loop running when input invalid
             }
-
-
         }
 
         //Set gender from above to Char
@@ -132,13 +138,13 @@ public class Person {
     //of the information for the person instance.
     public String introduce() {
         //Prep return string var
-        String returnMessage = "";
+        String returnMessage = "\n";
 
         //Adds each line of ouput to the return string using the format method 
         //to return the value of the field in the given instance.
         returnMessage += String.format("Name: %s\n", this.name);
         returnMessage += String.format("Age: %d\n", this.age);
-        returnMessage += String.format("Gender: %c\n", gender);
+        returnMessage += String.format("Gender: %c\n", this.gender);
 
         //Returns the completed message
         return returnMessage;
