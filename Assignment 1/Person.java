@@ -6,33 +6,80 @@
 //
 //          Text
 //
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Person {
-    //MAIN
+    //MAIN:
+    //In MAIN we want to get user input to pass as params for an instance of the Person class
     public static void main(String[] args) {
         //Instantiate input scanner
         Scanner scanner = new Scanner(System.in);
 
-        //Print request for user input and store it as vars to
-        //build a Person instance later.
+        //***INPUT SECTION***
+
         //--Name--
-        System.out.println("Enter your name: ");
-        String myName = scanner.nextLine();
+        //Initialize
+        String myName = ""; //Initialize
+
+        //While loop for validation that name is not blank
+        while (myName == "") {
+            System.out.println("Enter your name: ");
+            myName = scanner.nextLine(); //Get input
+            if (myName == "") { //if blank (prints below and loops):
+                System.out.println("\nName cannot be blank.\nPlease try again.\n");
+            }
+        }
 
         //--Age--
-        System.out.println("Enter your age: ");
-        Integer myAge = scanner.nextInt();
+        //Initialize
+        Integer myAge = 0;
+        
+        //While loop to ensure correct data type inputted
+        while (myAge == 0) {
+            System.out.println("Enter your age: ");
+            try {
+                myAge = scanner.nextInt();
+            } 
+            
+            catch (Exception e) { //if invalid input, prints below and loops
+                System.out.println("\n***INPUT ERROR***\nPlease use whole numbers represented in numeric characters only.\n");
+                scanner.next(); //Consumes the \n and progresses the scanner (Source: https://stackoverflow.com/questions/23450524/java-scanner-doesnt-wait-for-user-input)
+            }
+        }
 
-        //Consumes the \n left after nextInt(), which caused the next nextLine() to break 
-        //(Source: https://stackoverflow.com/questions/23450524/java-scanner-doesnt-wait-for-user-input)
-        scanner.nextLine(); 
 
         //--Gender
-        System.out.println("Enter your gender (M, F, or X): ");
-        String myGenderStr = scanner.nextLine();
+        //Setup constants
+        final String[] genders = {"M", "F", "X"};
+        String errMsg = "\n***INPUT ERROR***\nPlease use a single M, F, or X character to represent your gender (X stands for other).\n";
+
+        //Initialize
+        String myGenderStr = "";
+
+        //While loop to get appropriate char to represent gender (male, female, other/nb)
+        while (myGenderStr == "") {
+            System.out.println("Enter your gender (M, F, or X): ");
+            myGenderStr = scanner.nextLine().toUpperCase();
+
+            //conditional check that does the actual validation
+            if (myGenderStr.length() != 1) { //if they used multiple chars, they fail
+                System.out.println(errMsg);
+            }
+            
+            else if (!Arrays.asList(genders).contains(myGenderStr)) { 
+                System.out.println(errMsg);
+            }
+
+
+        }
+
+        //Set gender from above to Char
         Character myGender = myGenderStr.charAt(0);
 
+        //***OUTPUT SECTION***
+
+        //--Instantiate a Person
         //Instantiate a Person using the inputs
         Person myPerson = new Person(myName, myAge, myGender);
 

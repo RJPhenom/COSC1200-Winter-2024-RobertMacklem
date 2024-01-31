@@ -19,15 +19,32 @@ public class BurgerShop {
 
         //Prompt user for input using scanner
         //--Customer Name--
-        System.out.println("Enter customer name: ");
-        String custName = scanner.nextLine();
+        String custName = "";
+        while (custName == "") {
+            System.out.println("Enter customer name: ");
+            custName = scanner.nextLine();
+            if (custName == "") {
+                System.out.println("\nCustomer name cannot be blank.\nPlease try again.\n");
+            }
+        }
 
         //--Burger Quantity--
-        System.out.println("Enter quantity of burgers: ");
-        Integer brgrQty = scanner.nextInt();
-
-        //Cast to float
-        Float brgrQtyFloat = brgrQty.floatValue();
+        //Initialize
+        Integer brgrQty = 0;
+        //Boolean coupled with while loop to do input validation on data type (needs to be int) for brgrQty
+        Boolean isValidBQty = false;
+        while (!isValidBQty) {
+            try {
+                System.out.println("Enter quantity of burgers: ");
+                brgrQty = scanner.nextInt();
+                isValidBQty = true; //Breaks out of while loop
+            } 
+            
+            catch (Exception e) {
+                System.out.println("\n***INVALID INPUT**\nPlease use whole numbers represented in numeric characters only.\n");
+                scanner.next(); //Consumes the next line to advance scanner for while loop
+            }
+        }
 
         //Process the financial values to be outputte don receipt
         Float totalCost = (brgrQty * brgrPrice);
