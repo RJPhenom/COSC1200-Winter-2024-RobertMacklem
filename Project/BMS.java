@@ -18,20 +18,22 @@ import java.util.HashMap;
 public class BMS {
     //CONSTS
     //Messages & Strings
-    static final String WELCOMEMSG = "\n*************************************************\n" +
-                                  "Welcome to Bookstore Management System (BMS) 1.0!" +
-                                  "\n*************************************************\n" +
-                                  "\nHow can we help your bookstore operations today?\n";
+    static final String WELCOMEMSG =   "\n*************************************************\n" +
+                                        "Welcome to Bookstore Management System (BMS) 1.0!" +
+                                        "\n*************************************************\n" +
+                                        "\nHow can we help your bookstore operations today?\n";
 
-    static final String MENUMSG = "1. Transact\n" +
-                               "2. Report\n" +
-                               "3. Quit\n";
+    static final String MENUMSG =   "1. Transact\n" +
+                                    "2. Report\n" +
+                                    "3. Quit\n";
 
-    static final String ERRORMSG = "\n***ERROR*** Please retry using a valid input!\n";
+    static final String ERRORMSG =  "\n***ERROR*** Please retry using a valid input!\n";
 
     //Hashmaps
     static final HashMap<Integer, Runnable> MENUMAP = new HashMap<Integer, Runnable>() {{
-        put(1, () -> TransactMenu()); //lambda lets us run submenus out of a dict
+        put(1, () -> TransactMenu()); //lambdas let us run submenus out of a dict (noice)
+        put(2, () -> ReportMenu());
+        put(3, () -> Quit());
     }};
 
     //VARS
@@ -51,8 +53,10 @@ public class BMS {
                 }
 
                 else {
-                    System.out.println("\nOption not found.\n" +
-                                       "Please enter 1, 2 or 3 to select an option.\n");
+                    System.out.println(
+                        "\nOption not found.\n" +
+                        "Please enter 1, 2 or 3 to select an option.\n"
+                    );
                 }
             }
 
@@ -65,15 +69,12 @@ public class BMS {
 
     }
 
-    private static int TransactMenu() {
-        //Declare return var
-        int mode = 0;
-
+    private static void TransactMenu() {
         boolean inTransactMenu = true;
         while (inTransactMenu) {
             System.out.println("In transact menu!");
             try{
-                mode = scanner.nextInt();
+                int mode = scanner.nextInt();
                 inTransactMenu = false;
             }
 
@@ -82,7 +83,26 @@ public class BMS {
                 scanner.next();
             }
         }
+    }
 
-        return mode;
+    private static void ReportMenu() {
+        boolean inTransactMenu = true;
+        while (inTransactMenu) {
+            System.out.println("In report menu!");
+            try{
+                int mode = scanner.nextInt();
+                inTransactMenu = false;
+            }
+
+            catch (Exception exception) {
+                System.out.println(ERRORMSG);
+                scanner.next();
+            }
+        }
+    }
+
+    private static void Quit() {
+        scanner.next();
+        System.out.println("Quitting application...\n\nGoodbye!\n");
     }
 }
