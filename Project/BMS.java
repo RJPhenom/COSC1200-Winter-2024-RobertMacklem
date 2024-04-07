@@ -102,7 +102,6 @@ public class BMS {
     }
 
     private static void Quit() {
-        scanner.next();
-        System.out.println("Quitting application...\n\nGoodbye!\n");
+        System.out.println("\nQuitting application...\n\nGoodbye!\n");
     }
 }
