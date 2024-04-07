@@ -16,5 +16,8 @@
 // ***************************************************************************************
 
 public class Order {
-    
+    int ID = 0;
+    int customerID = 0;
+    int items[];
+    String date;
 }

@@ -16,5 +16,10 @@
 // ***************************************************************************************
 
 public class Book {
-
+    int ID = 0;
+    int ISBN = 0000000000000;
+    String title = "";
+    String author = "";
+    String publisher = "";
+    float price = 0.0f;
 }

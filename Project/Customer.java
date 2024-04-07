@@ -16,5 +16,49 @@
 // ***************************************************************************************
 
 public class Customer {
-    
+    // PROPERTIES
+    int ID = 0;
+    String name = "";
+    String address = "";
+    String email = "";
+    int phone = 0;
+    int orders[];
+
+    // GETTERS
+    public int ID() {
+        return ID;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public String address() {
+        return address;
+    }
+
+    public String email() {
+        return email;
+    }
+
+    public int phone() {
+        return phone;
+    }
+
+    public int[] orders() {
+        return orders;
+    }
+
+    // SETTERS
+    public void updateAddress(String newAddress) {
+        this.address = newAddress;
+    }
+
+    public void updateEmail(String newEmail) {
+        this.email = newEmail;
+    }
+
+    public void updatePhone(int newPhone) {
+        this.phone = newPhone;
+    }
 }
