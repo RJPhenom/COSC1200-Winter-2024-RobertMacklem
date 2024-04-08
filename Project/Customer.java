@@ -20,6 +20,8 @@ import java.util.ArrayList;
 
 public class Customer implements Serializable {
     // PROPERTIES
+    private static final long serialVersionUID = 3L;
+
     private Integer ID = 0;
     private String name = "";
     private String address = "";

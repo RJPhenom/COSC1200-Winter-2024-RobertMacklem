@@ -20,6 +20,8 @@ import java.time.*;
 
 public class Order implements Serializable {
     // PROPERTIES
+    private static final long serialVersionUID = 2L;
+
     private Integer ID = 0;
     private Integer customerID = 0;
     private ArrayList<Integer> items;

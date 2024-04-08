@@ -56,6 +56,21 @@ public class BMS {
 
     static final String ExitMsg =       "\nQuitting application...\n\nGoodbye!\n";
 
+
+    // Streams
+    static ObjectInputStream bookOIS;
+    static ObjectInputStream orderOIS;
+    static ObjectInputStream customerOIS;
+
+    static ObjectOutputStream bookOOS;
+    static ObjectOutputStream orderOOS;
+    static ObjectOutputStream customerOOS;
+
+    // Live data
+    static ArrayList<Book> books = new ArrayList<Book>();
+    static ArrayList<Order> orders = new ArrayList<Order>();
+    static ArrayList<Customer> customers = new ArrayList<Customer>();
+
     // Exit method
     static Runnable exitMethod = () -> {};
 
@@ -92,6 +107,8 @@ public class BMS {
     public static void main(String args[]) {
         System.out.println(WelcomeMsg);     // Print welcome message
         InitFiles();                        // Initialize db
+        InitIOStreams();                    // Initialize our IO streams to our files
+        InitLiveData();                     // Initialize our active arrays for the current session
         MenuLoop(MainMenu, MainMenuMap);    // Run the menu loop
         System.out.println(ExitMsg);        // Printout an exit message before quitting
     }
@@ -126,7 +143,6 @@ public class BMS {
         }
     }
 
-
     // --FILE HANDLING--
     // Init runs once, when program starts to ensure there are the files for the live session.
     private static void InitFiles() {
@@ -136,7 +152,7 @@ public class BMS {
 
         for (File table : db) {
             if (table.exists()) {
-
+                //System.out.println("File found!");
             }
 
             else {
@@ -151,23 +167,37 @@ public class BMS {
             }
         }
     }
+    
+    private static void InitIOStreams() {
+        try{
+            bookOIS = new ObjectInputStream(new FileInputStream(booksTable));
+            orderOIS = new ObjectInputStream(new FileInputStream(ordersTable));
+            customerOIS  = new ObjectInputStream(new FileInputStream(customersTable));
 
+            bookOOS = new ObjectOutputStream(new FileOutputStream(booksTable, true));
+            orderOOS = new ObjectOutputStream(new FileOutputStream(booksTable, true));
+            customerOOS = new ObjectOutputStream(new FileOutputStream(booksTable, true));
+        }
+
+        catch (Exception exception) {
+
+        }
+    }
+
+    private static void InitLiveData() {
+        // Populate books array
+        ReadBooks();
+        ReadCustomers();
+        ReadOrders();
+
+    }
     // Gens a new integer ID that is the highest ID integer in the file + 1
     private static Integer GenerateID(File file) {
         if (file == ordersTable) {
             Integer highestID = 0;
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ordersTable))) {
-                while (true) {
-                    Order order = (Order) ois.readObject();
-                    if (order.ID() > highestID) {
-                        highestID = order.ID();
-                    }
-                }
-            } 
-            
-            catch (Exception exception) {
-
-            } 
+            for (Order order : orders) {
+                highestID = (order.ID() > highestID) ? order.ID() : highestID;
+            }
 
             return highestID++;
         }
@@ -215,88 +245,102 @@ public class BMS {
     }
     
     // Reader functions
-    private static ArrayList<Customer> ReadCustomers() {
-        ArrayList<Customer> customers = new ArrayList<Customer>();
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(customersTable))) {
+    private static void ReadCustomers() {
+        try {
             while (true) {
-                Customer customer = (Customer) ois.readObject();
-                customers.add(customer);
+                try {
+                    Customer customer = (Customer) customerOIS.readObject();
+                    customers.add(customer);
+                }
+
+                catch (EOFException end) {
+                    end.printStackTrace();
+                    break;
+                }
             }
-        } 
-        
+        }
+
         catch (Exception exception) {
-
-        } 
-
-        return customers;
+            exception.printStackTrace();
+        }
     }
 
-    private static ArrayList<Order> ReadOrders() {
-        ArrayList<Order> orders = new ArrayList<Order>();
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(customersTable))) {
+    private static void ReadOrders() {
+        try {
             while (true) {
-                Order order = (Order) ois.readObject();
-                orders.add(order);
+                try {
+                    Order order = (Order) orderOIS.readObject();
+                    orders.add(order);
+                }
+
+                catch (EOFException end) {
+                    end.printStackTrace();
+                    break;
+                }
             }
-        } 
-        
+        }
+
         catch (Exception exception) {
-
-        } 
-
-        return orders;
+            exception.printStackTrace();
+        }
     }
 
-    private static ArrayList<Book> ReadBooks() {
-        ArrayList<Book> books = new ArrayList<Book>();
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(customersTable))) {
+    private static void ReadBooks() {
+        try {
             while (true) {
-                Book book = (Book) ois.readObject();
-                books.add(book);
+                try {
+                    System.out.println("here");
+                    Book book = (Book) bookOIS.readObject();
+                    System.out.println("and here");
+                    books.add(book);
+                }
+
+                catch (EOFException end) {
+                    end.printStackTrace();
+                    break;
+                }
             }
-        } 
-        
+        }
+
         catch (Exception exception) {
-
-        } 
-
-        return books;
+            exception.printStackTrace();
+        }
     }
 
     // Writer functions
     private static void WriteCustomers(ArrayList<Customer> customers) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(customersTable))) {
-            for (Customer customer : customers) {
-                oos.writeObject(customer);
+        for (Customer customer : customers) {
+            try {
+                customerOOS.writeObject(customer);
             }
-        } 
-        
-        catch (Exception exception) {
 
+            catch (Exception exception) {
+                
+            }
         }
     }
 
     private static void WriteOrders(ArrayList<Order> orders) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ordersTable))) {
-            for (Order order : orders) {
-                oos.writeObject(order);
+        for (Order order : orders) {
+            try {
+                orderOOS.writeObject(order);
             }
-        } 
-        
-        catch (Exception exception) {
 
+            catch (Exception exception) {
+                
+            }
         }
     }
 
     private static void WriteBooks(ArrayList<Book> books) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(booksTable))) {
-            for (Book book : books) {
-                oos.writeObject(book);
+        for (Book book : books) {
+            try {
+                bookOOS.writeObject(book);
             }
-        } 
-        
-        catch (Exception exception) {
 
+            catch (Exception exception) {
+
+            }
         }
     }
 
@@ -351,8 +395,8 @@ public class BMS {
         Integer newBookID = GenerateID(booksTable);
         Book book = new Book(newBookID, scanner, ISBN);
 
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(booksTable, true))) {
-            oos.writeObject(book);
+        try {
+            bookOOS.writeObject(book);
         } 
         
         catch (Exception exception) {
@@ -362,6 +406,9 @@ public class BMS {
 
     private static void AddBooks() {
         ArrayList<Book> books = ReadBooks();
+        for (Book book : books) {
+            System.out.println(book.ISBN().toString());
+        }
 
         boolean finished = false;
         while (!finished) {
@@ -373,6 +420,7 @@ public class BMS {
                 System.out.println("\n***ERROR*** ISBN must be 13 digits!\nPlease try again.");
                 continue;
             }
+
 
             // Check for duplicate book ISBN entries!
             boolean duplicate = false;

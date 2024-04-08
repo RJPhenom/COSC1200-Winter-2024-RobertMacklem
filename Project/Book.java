@@ -19,6 +19,8 @@ import java.io.Serializable;
 
 public class Book implements Serializable {
     // PROPERTIES
+    private static final long serialVersionUID = 1L;
+
     private Integer ID = 0;
     private Long ISBN = 0000000000000l;
     private String title = "";
