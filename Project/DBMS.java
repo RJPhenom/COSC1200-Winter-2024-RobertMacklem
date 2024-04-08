@@ -176,10 +176,11 @@ public class DBMS {
 
         switch (tableIndex) {
             case 0:
+                boolean duplicateOrder = IdentifyDuplicate(table, ((Order) record).ID());
                 ArrayList<Order> orders = SelectOrders(); 
                 try (ObjectOutputStream OOS = new ObjectOutputStream(new FileOutputStream(table))) {
                     Order order = (Order) record;
-                    if (!IdentifyDuplicate(table, order.ID())) {
+                    if (!duplicateOrder) {
                         orders.add(order);
 
                         for (Order o : orders) {
@@ -201,10 +202,11 @@ public class DBMS {
                 break;
 
             case 1:
+                boolean duplicateCustomer = IdentifyDuplicate(table, ((Order) record).ID());
                 ArrayList<Customer> customers = SelectCustomers(); 
                 try (ObjectOutputStream OOS = new ObjectOutputStream(new FileOutputStream(table))) {
                     Customer customer = (Customer) record;
-                    if (!IdentifyDuplicate(table, customer.ID())) {
+                    if (!duplicateCustomer) {
                         customers.add(customer);
 
                         for (Customer c : customers) {
@@ -226,10 +228,11 @@ public class DBMS {
                 break;
 
             case 2:
+                boolean duplicateBook = IdentifyDuplicate(table, ((Book) record).ID());
                 ArrayList<Book> books = SelectBooks(); 
                 try (ObjectOutputStream OOS = new ObjectOutputStream(new FileOutputStream(table))) {
                     Book book = (Book) record;
-                    if (!IdentifyDuplicate(table, book.ID())) {
+                    if (!duplicateBook) {
                         books.add(book);
 
                         for (Book b : books) {

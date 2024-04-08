@@ -16,7 +16,6 @@
 // ***************************************************************************************
 import java.io.Serializable;
 import java.util.Scanner;
-import java.util.ArrayList;
 
 public class Customer implements Serializable {
     // PROPERTIES
@@ -27,7 +26,6 @@ public class Customer implements Serializable {
     private String address = "";
     private String email = "";
     private Integer phone = 0;
-    private ArrayList<Order> orders;
 
     // CONSTRUCTOR
     public Customer(Integer customerID, Scanner scanner) {
@@ -96,9 +94,6 @@ public class Customer implements Serializable {
                 System.out.println("\n***ERROR*** Phone # must be entered using DIGITS only. (EXAMPLE: 18005551234)\nPlease try again.\n");
             }
         }
-
-        // Orders inits as empty
-        this.orders = new ArrayList<Order>();
 
         // For debugging
         System.out.println("\n\n************CREATED NEW CUSTOMER**************");
@@ -178,45 +173,6 @@ public class Customer implements Serializable {
         }
     }
 
-    // ORDERS HANDLING
-    // Adding one or multiple orders
-    public void AddOrder(Order order) {
-        orders.add(order);
-    }
-
-    public void AddOrders(ArrayList<Order> orders) {
-        for (Order order : orders) {
-            AddOrder(order);
-        }
-    }
-
-    // Retrieves all orders this customer has made (for reporitng)
-    public ArrayList<Order> RetrieveOrders() {
-        ArrayList<Order> retrievedOrders = new ArrayList<Order>();
-
-        for (Order order : orders) {
-            retrievedOrders.add(order);
-        }
-
-        return retrievedOrders;
-    }
-
-    // These two method retrieve a single order, either by index in the list or
-    // by the orderID (likely the preferable method).
-    public Order RetrieveOrderByIndex(int index) {
-        return orders.get(index);
-    }
-
-    public Order RetrieveOrderByID(Integer orderID) {
-        for (Order order : orders) {
-            if (order.ID() == orderID) {
-                return order;
-            }
-        }
-
-        return null;
-    }
-
     // Reporting
     public void SelfReport() {
         String report = "\n" +
@@ -224,9 +180,8 @@ public class Customer implements Serializable {
             "Name: " + this.name + " | " +
             "Address: " + this.address + " | " +
             "Email: " + this.email + " | " +
-            "Phone: " + this.phone.toString() + " | " +
-            "Order(s): " + this.orders.toString();
-    
+            "Phone: " + this.phone.toString() + " | ";
+
         System.out.println(report);
     }
 }

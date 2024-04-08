@@ -214,6 +214,7 @@ public class BMS {
                 // Get the ISBN (id) of the book and the amount user wants to order
                 System.out.println("\nPlease enter the ISBN of the book to add to your order: \n");
                 Long ISBN = scanner.nextLong();
+                scanner.nextLine() ;
                 System.out.println("\nPlease enter the quantity you'd like to order: \n");
                 int qty = scanner.nextInt();
                 scanner.nextLine();
