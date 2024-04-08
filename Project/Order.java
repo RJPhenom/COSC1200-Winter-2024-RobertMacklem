@@ -19,16 +19,15 @@ import java.time.*;
 
 public class Order implements Serializable {
     // PROPERTIES
-    private static final long serialVersionUID = 2L;
-
     private Integer ID = 0;
     private Integer customerID = 0;
     private LocalDate date;
 
     // CONSTRUCTOR
-    public Order(Integer orderID, Integer customer) {
+    public Order(Integer orderID, Integer customer, LocalDate date) {
+        this.ID = orderID;
         this.customerID = customer;
-        this.date = LocalDate.now(); // Date should be when the order is made, and never change
+        this.date = date;
     }
 
     // GETTERS

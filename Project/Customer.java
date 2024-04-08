@@ -19,8 +19,6 @@ import java.util.Scanner;
 
 public class Customer implements Serializable {
     // PROPERTIES
-    private static final long serialVersionUID = 3L;
-
     private Integer ID = 0;
     private String name = "";
     private String address = "";
@@ -28,76 +26,14 @@ public class Customer implements Serializable {
     private Integer phone = 0;
 
     // CONSTRUCTOR
-    public Customer(Integer customerID, Scanner scanner) {
+    public Customer(Integer customerID, String name, String address, String email, Integer phone) {
         this.ID = customerID;
+        this.name = name;
+        this.address = address;
+        this.email = email;
+        this.phone  = phone;
 
-        // Set name via input
-        boolean validName = false;
-        while (!validName) {
-            System.out.println("\nPlease enter customer name: ");
-            String input = scanner.nextLine();
 
-            if (input != "") {
-                this.name = input;
-                validName = true;
-            }
-
-            else {
-                System.out.println("\n***ERROR*** Name field cannot be NULL.\nPlease try again.\n");
-            }
-        }
-
-        // Set addr via input
-        boolean validAddr = false;
-        while (!validAddr) {
-            System.out.println("\nPlease enter customer address (NULL accepted): ");
-            String input = scanner.nextLine();
-            this.address = input;
-            validAddr = true;  // While loop exists for future validation implementations, right now no validation runs on addr
-        }
-
-        // Set email via input
-        boolean validEmail = false;
-        while (!validEmail) {
-            System.out.println("\nPlease enter customer email (NULL accepted): ");
-            String input = scanner.nextLine();
-
-            if (input == "" || input.contains("@")) {
-                this.email = input;
-                validEmail = true;
-            }
-
-            else {
-                System.out.println("\n***ERROR*** Emails must contain a '@'.\nIf you do not have an email, please enter NULL.\n");
-            }
-        }
-
-        // Set phone via input
-        boolean validPhone = false;
-        while (!validPhone) {
-            System.out.println("\nPlease enter customer phone # (digits only): ");
-            try {
-                Integer input = scanner.nextInt();
-                scanner.nextLine();
-                if (input > 999999999) {
-                    this.phone = input;
-                    validPhone = true;
-                }
-                
-                
-                else {
-                    System.out.println("\n***ERROR*** Phone # must be at least 10 digits.\nPlease try again.");
-                }
-            }
-
-            catch (Exception exception) {
-                System.out.println("\n***ERROR*** Phone # must be entered using DIGITS only. (EXAMPLE: 18005551234)\nPlease try again.\n");
-            }
-        }
-
-        // For debugging
-        System.out.println("\n\n************CREATED NEW CUSTOMER**************");
-        this.SelfReport();
     }
 
     // GETTERS
@@ -175,7 +111,7 @@ public class Customer implements Serializable {
 
     // Reporting
     public void SelfReport() {
-        String report = "\n" +
+        String report =
             "Book ID: " + this.ID.toString() + " | " +
             "Name: " + this.name + " | " +
             "Address: " + this.address + " | " +
