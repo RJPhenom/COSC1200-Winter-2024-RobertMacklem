@@ -24,15 +24,11 @@ public class Order implements Serializable {
 
     private Integer ID = 0;
     private Integer customerID = 0;
-    private ArrayList<Integer> items;
-    private ArrayList<Integer> qtys;
     private LocalDate date;
 
     // CONSTRUCTOR
-    public Order(Integer orderID, Integer customer, ArrayList<Integer> orderItems, ArrayList<Integer> orderQtys) {
+    public Order(Integer orderID, Integer customer) {
         this.customerID = customer;
-        this.items = orderItems;
-        this.qtys = orderQtys;
         this.date = LocalDate.now(); // Date should be when the order is made, and never change
     }
 
@@ -43,14 +39,6 @@ public class Order implements Serializable {
 
     public Integer CustomerID() {
         return customerID;
-    }
-
-    public ArrayList<Integer> Items() {
-        return items;
-    }
-
-    public ArrayList<Integer> Quantities() {
-        return qtys;
     }
 
     public String Date() {
@@ -66,7 +54,6 @@ public class Order implements Serializable {
         String report = "\n" +
             "Order ID: " + this.ID.toString() + " | " +
             "Customer ID: " + this.customerID.toString() + " | " +
-            "Item(s): " + this.items.toString() + " | " +
             "Date: " + this.date.toString();
     
         System.out.println(report);

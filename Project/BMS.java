@@ -15,7 +15,6 @@
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.io.*;
 
 public class BMS {
     // --CONSTS--
@@ -50,26 +49,7 @@ public class BMS {
                                         "\n*************************************************\n" +
                                         "\nHow can we help your bookstore operations today?\n";
 
-    static final String InputErrorMsg = "\n***ERROR*** Please retry using a valid input!\n";
-
-    static final String FileErrorMsg =  "\n***ERROR*** File operations could not be resolved\n";
-
     static final String ExitMsg =       "\nQuitting application...\n\nGoodbye!\n";
-
-
-    // Streams
-    static ObjectInputStream bookOIS;
-    static ObjectInputStream orderOIS;
-    static ObjectInputStream customerOIS;
-
-    static ObjectOutputStream bookOOS;
-    static ObjectOutputStream orderOOS;
-    static ObjectOutputStream customerOOS;
-
-    // Live data
-    static ArrayList<Book> books = new ArrayList<Book>();
-    static ArrayList<Order> orders = new ArrayList<Order>();
-    static ArrayList<Customer> customers = new ArrayList<Customer>();
 
     // Exit method
     static Runnable exitMethod = () -> {};
@@ -95,24 +75,18 @@ public class BMS {
     // Generic scanner (for menu navigation)
     static Scanner scanner = new Scanner(System.in);
 
-    // Database variables
-    static ArrayList<File> db = new ArrayList<File>();
-
-    static File ordersTable = new File("Orders");
-    static File customersTable = new File("Customers");
-    static File booksTable = new File("Books");
-
+    // Database
+    static DBMS db;
 
     // --MAIN--
     public static void main(String args[]) {
         System.out.println(WelcomeMsg);     // Print welcome message
-        InitFiles();                        // Initialize db
-        InitIOStreams();                    // Initialize our IO streams to our files
-        InitLiveData();                     // Initialize our active arrays for the current session
+        db = new DBMS();                    // Start up our database
         MenuLoop(MainMenu, MainMenuMap);    // Run the menu loop
         System.out.println(ExitMsg);        // Printout an exit message before quitting
     }
 
+    // Function runs the menu loop for the current menu
     private static void MenuLoop(String MENU, HashMap<Integer, Runnable> MENUMAP) {
         boolean exit = false;
         while (!exit) {
@@ -137,278 +111,22 @@ public class BMS {
             }
 
             catch (Exception exception) {
-                System.out.println(InputErrorMsg);
+                System.out.println("\n***ERROR*** Please retry using a valid option!\n");
                 scanner.next();
             }
         }
     }
 
-    // --FILE HANDLING--
-    // Init runs once, when program starts to ensure there are the files for the live session.
-    private static void InitFiles() {
-        db.add(ordersTable);
-        db.add(customersTable);
-        db.add(booksTable);
-
-        for (File table : db) {
-            if (table.exists()) {
-                //System.out.println("File found!");
-            }
-
-            else {
-                try {
-                    table.createNewFile();
-                    System.out.println("File created: " + table.getName());
-                } 
-                
-                catch (IOException exception) {
-                    System.out.println("An error occurred while creating the file.");
-                }
-            }
-        }
-    }
-    
-    private static void InitIOStreams() {
-        try{
-            bookOIS = new ObjectInputStream(new FileInputStream(booksTable));
-            orderOIS = new ObjectInputStream(new FileInputStream(ordersTable));
-            customerOIS  = new ObjectInputStream(new FileInputStream(customersTable));
-
-            bookOOS = new ObjectOutputStream(new FileOutputStream(booksTable, true));
-            orderOOS = new ObjectOutputStream(new FileOutputStream(booksTable, true));
-            customerOOS = new ObjectOutputStream(new FileOutputStream(booksTable, true));
-        }
-
-        catch (Exception exception) {
-
-        }
-    }
-
-    private static void InitLiveData() {
-        // Populate books array
-        ReadBooks();
-        ReadCustomers();
-        ReadOrders();
-
-    }
-    // Gens a new integer ID that is the highest ID integer in the file + 1
-    private static Integer GenerateID(File file) {
-        if (file == ordersTable) {
-            Integer highestID = 0;
-            for (Order order : orders) {
-                highestID = (order.ID() > highestID) ? order.ID() : highestID;
-            }
-
-            return highestID++;
-        }
-
-        else if (file == customersTable) {
-            Integer highestID = 0;
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(customersTable))) {
-                while (true) {
-                    Customer customer = (Customer) ois.readObject();
-                    if (customer.ID() > highestID) {
-                        highestID = customer.ID();
-                    }
-                }
-            } 
-            
-            catch (Exception exception) {
-
-            } 
-
-            return highestID++;
-        }
-
-        else if (file == booksTable) {
-            Integer highestID = 0;
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(booksTable))) {
-                while (true) {
-                    Book book = (Book) ois.readObject();
-                    if (book.ID() > highestID) {
-                        highestID = book.ID();
-                    }
-                }
-            } 
-            
-            catch (Exception exception) {
-
-            } 
-
-            return highestID++;
-        }
-
-        else {
-            System.out.println("\n***ERROR*** Could not generate unique ID: file type mismatch!\n");
-            return 0;
-        }
-    }
-    
-    // Reader functions
-    private static void ReadCustomers() {
-        try {
-            while (true) {
-                try {
-                    Customer customer = (Customer) customerOIS.readObject();
-                    customers.add(customer);
-                }
-
-                catch (EOFException end) {
-                    end.printStackTrace();
-                    break;
-                }
-            }
-        }
-
-        catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
-
-    private static void ReadOrders() {
-        try {
-            while (true) {
-                try {
-                    Order order = (Order) orderOIS.readObject();
-                    orders.add(order);
-                }
-
-                catch (EOFException end) {
-                    end.printStackTrace();
-                    break;
-                }
-            }
-        }
-
-        catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
-
-    private static void ReadBooks() {
-        try {
-            while (true) {
-                try {
-                    System.out.println("here");
-                    Book book = (Book) bookOIS.readObject();
-                    System.out.println("and here");
-                    books.add(book);
-                }
-
-                catch (EOFException end) {
-                    end.printStackTrace();
-                    break;
-                }
-            }
-        }
-
-        catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
-
-    // Writer functions
-    private static void WriteCustomers(ArrayList<Customer> customers) {
-        for (Customer customer : customers) {
-            try {
-                customerOOS.writeObject(customer);
-            }
-
-            catch (Exception exception) {
-                
-            }
-        }
-    }
-
-    private static void WriteOrders(ArrayList<Order> orders) {
-        for (Order order : orders) {
-            try {
-                orderOOS.writeObject(order);
-            }
-
-            catch (Exception exception) {
-                
-            }
-        }
-    }
-
-    private static void WriteBooks(ArrayList<Book> books) {
-        for (Book book : books) {
-            try {
-                bookOOS.writeObject(book);
-            }
-
-            catch (Exception exception) {
-
-            }
-        }
-    }
-
-    // Finder functions
-    private static Integer findCustomerIndex(Integer ID, ArrayList<Customer> customers) {
-        for (int i = 0; i < customers.size(); i++) {
-            if (customers.get(i).ID() == ID) {
-                return i;
-            }
-        }
-
-        System.out.println("\nWARNING: ID not found!\n");
-        return -1;
-    }
-
-    private static Integer findOrderIndex(Integer ID, ArrayList<Order> orders) {
-        for (int i = 0; i < orders.size(); i++) {
-            if (orders.get(i).ID() == ID) {
-                return i;
-            }
-        }
-
-        System.out.println("\nWARNING: ID not found!\n");
-        return -1;
-    }
-
-    private static Integer findBookIndex(Integer ID, ArrayList<Book> books) {
-        for (int i = 0; i < books.size(); i++) {
-            if (books.get(i).ID() == ID) {
-                return i;
-            }
-        }
-
-        System.out.println("\nWARNING: ID not found!\n");
-        return -1;
-    }
-
-    private static Integer findCustomerIDByName(String name, ArrayList<Customer> customers) {
-        for (Customer customer : customers) {
-            if (customer.Name().toUpperCase() == name.toUpperCase()) {
-                return customer.ID();
-            }
-        }
-
-        System.out.println("\nWARNING: Customer not found!\n");
-        return -1;
-    }
-
-    
     // --TRANSACTIONS--
     private static void AddBook(Long ISBN) {
-        Integer newBookID = GenerateID(booksTable);
+        Integer newBookID = db.GenerateUniqueID(db.Books());
         Book book = new Book(newBookID, scanner, ISBN);
 
-        try {
-            bookOOS.writeObject(book);
-        } 
-        
-        catch (Exception exception) {
-            System.out.println("\n***ERROR*** Unexpected error writing new book to file.\n");
-        }
+        db.Insert(db.Books(), book);
     }
 
     private static void AddBooks() {
-        ArrayList<Book> books = ReadBooks();
-        for (Book book : books) {
-            System.out.println(book.ISBN().toString());
-        }
+        ArrayList<Book> books = db.SelectBooks();
 
         boolean finished = false;
         while (!finished) {
@@ -422,12 +140,11 @@ public class BMS {
             }
 
 
-            // Check for duplicate book ISBN entries!
+            // Check for duplicate book ISBN entries
             boolean duplicate = false;
             for (Book book : books) {
                 if (book.ISBN() == ISBN) {
                     duplicate = true;
-
                     System.out.println("\nA record already exists for this ISBN. Increase quantity? (Enter 'Y' to accept): ");
                     String decision = scanner.nextLine();
 
@@ -436,10 +153,8 @@ public class BMS {
                         int qty = scanner.nextInt();
                         scanner.nextLine();
 
-                        book.UpdateQty(qty);
+                        db.UpdateBookByID(book.ID(), qty);
                     }
-
-                    break;
                 }
             }
 
@@ -462,17 +177,8 @@ public class BMS {
         boolean validName = false;
         while (!validName) {
             if (name != "") {
-                ArrayList<Customer> customers = ReadCustomers();
-                Integer ID = findCustomerIDByName(name, customers);
-                Integer index = findCustomerIndex(ID, customers);
-        
-                if (index != -1) {
-                    customers.get(index).UpdateAddress(scanner);
-                    customers.get(index).UpdateEmail(scanner);
-                    customers.get(index).UpdatePhone(scanner);
-                }   
-                
-                WriteCustomers(customers);
+                validName = true;
+                db.UpdateCustomerByName(name, scanner);
             }
     
             else {
@@ -482,52 +188,25 @@ public class BMS {
     }
 
     private static void NewOrders() {
-        ArrayList<Customer> customers = ReadCustomers();
-        ArrayList<Book> books = ReadBooks();
-        ArrayList<Order> orders = ReadOrders();
-
         boolean finishedOrders = false;
         while (!finishedOrders) {
-            // Customer handling for the order
-            int customerIndex = -1;
-            boolean validName = false;
-            while (!validName) {
-                System.out.println("\nPlease enter the customer name for your order: ");
-                String name = scanner.nextLine();
+            // Init the data containers for writing (later)
+            ArrayList<OrderItem> items = new ArrayList<OrderItem>();
+            Customer identifiedCustomer = null;
+            Integer orderID = db.GenerateUniqueID(db.Orders());
 
-                // If the user inputs null str
-                if (name != "") {
-                    for (Customer customer : customers) {
-                        if (customer.Name().toUpperCase() == name.toUpperCase()) {
-                            Integer ID = findCustomerIDByName(name, customers);
-                            customerIndex = findCustomerIndex(ID, customers);
-                            validName = true;
-                            break;
-                        }
-                    }
+            // Prompt user for customer
+            System.out.println("\nPlease enter the customer name for your order: ");
+            String name = scanner.nextLine();
 
-                    // If the customer couldn't be found!
-                    if (customerIndex == -1) {
-                        System.out.println("\nNo existing customer by that name.\nCreating new customer...");
-
-                        Integer ID = GenerateID(customersTable);
-                        Customer customer = new Customer(ID, scanner);
-                        customers.add(customer);
-                        WriteCustomers(customers);
-
-                        customerIndex = customers.size() - 1;
-                        validName = true;
-                    }
-                }
-
-                else {
-                    System.out.println("\n***ERROR*** Name cannot be NULL.\nPlease try again.\n");
-                }
+            // Handles unidentified (new) customer
+            identifiedCustomer = db.SelectCustomerByName(name);
+            if (identifiedCustomer == null) {
+                System.out.println("\nNo existing customer by that name.\nCreating new customer...");
+                Integer newCustomerID = db.GenerateUniqueID(db.Customers());
+                Customer newCustomer = new Customer(newCustomerID, scanner);
+                db.Insert(db.Customers(), newCustomer);
             }
-
-            // Item handling for the order
-            ArrayList<Integer> booksForOrder = new ArrayList<Integer>();
-            ArrayList<Integer> qtysForOrder = new ArrayList<Integer>();
 
             // Loop to allow buying multiple items
             boolean finishedItems = false;
@@ -537,16 +216,23 @@ public class BMS {
                 Long ISBN = scanner.nextLong();
                 System.out.println("\nPlease enter the quantity you'd like to order: \n");
                 int qty = scanner.nextInt();
+                scanner.nextLine();
 
                 // Lookup the book if its in stock (or exists)
+                boolean bookFound = false;
+                ArrayList<Book> books = db.SelectBooks();
                 for (Book book : books) {
                     if (book.ISBN() == ISBN) {
+                        bookFound = true;
 
                         // Make sure there is enough stock
                         if (book.Qty() >= qty) {
-                            booksForOrder.add(book.ID());
-                            qtysForOrder.add(qty);
-                            book.UpdateQty(qty * -1);
+                            OrderItem item = new OrderItem(orderID, book.ID(), qty);
+                            items.add(item);
+                        }
+
+                        else if (book.Qty() == 0) {
+                            System.out.println("\nWARNING: Sorry, we are out of stock for that book.");
                         }
 
                         else {
@@ -555,8 +241,8 @@ public class BMS {
 
                             if (decision.equalsIgnoreCase("Y")) {
                                 qty = book.Qty();
-                                booksForOrder.add(book.ID());
-                                qtysForOrder.add(qty);
+                                OrderItem item = new OrderItem(orderID, book.ID(), qty);
+                                db.Insert(db.OrderItems(), item);
                                 book.UpdateQty(qty * -1);
 
                                 System.out.println("\nRemaining stock added.\n");
@@ -567,59 +253,57 @@ public class BMS {
                     }
                 }
 
+                if (!bookFound) {
+                    System.out.println("\nWARNING: Sorry, we do not have any records for that book.\nYou might need to try another bookstore.");
+                }
+
                 // Add another book?
                 System.out.println("\nAdd more books to your order? (Enter 'Y' to accept): \n");
                 String decision = scanner.nextLine();
 
-                if (decision.equalsIgnoreCase("Y")) {
+                if (decision.toUpperCase() != "Y") {
                     finishedItems = true;
                 }
             }
 
-            // Gen the order record
-            Integer ID = GenerateID(ordersTable);
-            Order order = new Order(ID, customers.get(customerIndex).ID(), booksForOrder, qtysForOrder);
+            // Gen the order record and insert
+            Order order = new Order(orderID, identifiedCustomer.ID());
+            db.Insert(db.Orders(), order);
 
-            // Add it to the arr
-            orders.add(order);
+            // Gen the items records and insert
+            for (OrderItem orderItem : items) {
+                db.Insert(db.OrderItems(), orderItem);
+                db.UpdateBookByID(orderItem.itemID, orderItem.qty * -1);
+            }
 
-            // Loop?
+            // Another order?
             System.out.println("\nOrder submitted. Would you like to add another order? (Enter 'Y' to accept): ");
             String decision = scanner.nextLine();
             if (decision.equalsIgnoreCase("Y")) {
                 finishedOrders = true;
             }
         }
-
-        // Write and exit
-        WriteOrders(orders);
     }
 
     private static void ReverseOrder() {
         System.out.println("\nPlease enter the Order ID to be reversed: ");
         Integer ID = scanner.nextInt();
-        ArrayList<Order> orders = ReadOrders();
-        int orderIndex = findOrderIndex(ID, orders);
+        scanner.nextLine();
 
-        if (orderIndex != -1) {
-        // Book reader call is here because we dont need it outside validation scope and could save us some
-        // speed at runtime if user puts in bad values
-        ArrayList<Book> books = ReadBooks();
-
-        // Loops over all items in the order, looks up those books in the books arr and adds back the
-        // book qty from the order
-        for (int i = 0; i < orders.get(orderIndex).Items().size(); i++) {
-            Integer bookID = orders.get(orderIndex).Items().get(i);
-            int bookIndex = findBookIndex(bookID, books);
-            books.get(bookIndex).UpdateQty(orders.get(orderIndex).Quantities().get(i));
+        // This if/else block returns the item stock to the associated record
+        ArrayList<OrderItem> items = db.SelectOrderItemsByOrderID(ID);
+        if (items.isEmpty()) {
+            System.out.println("\nWARNING: Order not found [ReverseOrder FAILED]");
         }
 
-        // Cull the order
-        orders.remove(orders.get(orderIndex));
+        else {
+            for (OrderItem item : items) {
+                db.UpdateBookByID(item.itemID, item.qty);
+                db.RemoveOrder(ID);
+                db.RemoverOrderItemByOrderID(ID);
 
-        // Write back
-        WriteOrders(orders);
-        WriteBooks(books);
+                System.out.println("\nOrder reversal complete.");
+            }
         }
     }
 }
