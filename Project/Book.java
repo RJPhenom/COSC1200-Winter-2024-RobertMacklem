@@ -20,7 +20,7 @@ import java.io.Serializable;
 public class Book implements Serializable {
     // PROPERTIES
     private Integer ID = 0;
-    private Integer ISBN = 0000000000000;
+    private Long ISBN = 0000000000000l;
     private String title = "";
     private String author = "";
     private String publisher = "";
@@ -28,24 +28,9 @@ public class Book implements Serializable {
     private Integer qty = 0;
 
     // CONSTRUCTOR
-    public Book(Integer bookID, Scanner scanner) {
+    public Book(Integer bookID, Scanner scanner, Long ISBN) {
         this.ID = bookID;
-
-        // Set ISBN via input
-        boolean validISBN = false;
-        while (!validISBN) {
-            System.out.println("\nPlease enter ISBN: ");
-            Integer input = scanner.nextInt();
-
-            if (input > 999999999999l) {
-                this.ISBN = input;
-                validISBN = true;
-            }
-
-            else {
-                System.out.println("\n***ERROR*** ISBN must be 13 digits long.\nPlease try again.\n");
-            }
-        }
+        this.ISBN =ISBN;
 
         // Set Title via input
         boolean validTitle = false;
@@ -115,7 +100,7 @@ public class Book implements Serializable {
         return this.ID;
     }
 
-    public Integer ISBN() {
+    public Long ISBN() {
         return this.ISBN;
     }
 

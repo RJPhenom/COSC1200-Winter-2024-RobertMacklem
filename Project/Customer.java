@@ -78,13 +78,15 @@ public class Customer implements Serializable {
             System.out.println("\nPlease enter customer phone # (digits only): ");
             try {
                 Integer input = scanner.nextInt();
+                scanner.nextLine();
                 if (input > 999999999) {
                     this.phone = input;
+                    validPhone = true;
                 }
                 
                 
                 else {
-                    System.out.println("\n***ERROR*** Phone # must be at least 10 digits.\nPlease try again.]n");
+                    System.out.println("\n***ERROR*** Phone # must be at least 10 digits.\nPlease try again.");
                 }
             }
 
@@ -157,6 +159,7 @@ public class Customer implements Serializable {
             System.out.println("\nPlease enter customer phone # (digits only): ");
             try {
                 Integer input = scanner.nextInt();
+                scanner.nextLine();
                 if (input > 999999999) {
                     this.phone = input;
                 }

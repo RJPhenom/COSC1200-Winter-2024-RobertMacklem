@@ -20,17 +20,20 @@ import java.io.*;
 public class BMS {
     // --CONSTS--
     // Menus
-    static final String MainMenu =      "1. \tTransact\n" +
+    static final String MainMenu =      "\n" + 
+                                        "1. \tTransact\n" +
                                         "2. \tReport\n" +
                                         "3. \tQuit\n";
 
-    static final String TransactMenu =  "1. \tNew Order\n" +
+    static final String TransactMenu =  "\n" + 
+                                        "1. \tNew Order\n" +
                                         "2. \tReverse Order\n" +
                                         "3. \tNew Book(s)\n" +
                                         "4. \tEdit Customer\n" +
                                         "5. \tExit to previous menu.\n";
 
-    static final String ReportMenu =    "1. \tGenerate Customer report by name.\n" +
+    static final String ReportMenu =    "\n" + 
+                                        "1. \tGenerate Customer report by name.\n" +
                                         "2. \tGenerate Customer report by ID.\n" +
                                         "3. \tGenerate Customers report.\n" +
                                         "4. \tGenerate last Order\n" +
@@ -53,17 +56,23 @@ public class BMS {
 
     static final String ExitMsg =       "\nQuitting application...\n\nGoodbye!\n";
 
+    // Exit method
+    static Runnable exitMethod = () -> {};
+
     // Menu Hashmaps
     static final HashMap<Integer, Runnable> MainMenuMap = new HashMap<Integer, Runnable>() {{
         put(1, () -> MenuLoop(TransactMenu, TransactMenuMap));  // lambdas let us run submenus out of a dict (noice)
         put(2, () -> MenuLoop(ReportMenu, MainMenuMap));
-        put(3, () -> {});
+        put(3, exitMethod);
     }};
 
     static final HashMap<Integer, Runnable> TransactMenuMap = new HashMap<Integer, Runnable>() {{
-        put(1, () -> MenuLoop(TransactMenu, MainMenuMap));
-        put(2, () -> MenuLoop(ReportMenu, MainMenuMap));
-        put(3, () -> {});
+        put(1, () -> NewOrders());
+        put(2, () -> ReverseOrder());
+        put(3, () -> AddBooks());
+        put(4, () -> EditCustomer());
+        put(5, exitMethod);
+
     }};
 
 
@@ -93,16 +102,21 @@ public class BMS {
             System.out.println(MENU);
             try {
                 int mode = scanner.nextInt();
+                scanner.nextLine();
                 Runnable modeExecutable = MENUMAP.get(mode);
                 if (modeExecutable != null) {
-                    modeExecutable.run();
+                    if (modeExecutable != exitMethod) {
+                        modeExecutable.run();
+                    }
+
+                    else {
+                        exit = true;
+                    }
                 }
 
                 else {
                     throw new Exception();
                 }
-
-                exit = true;
             }
 
             catch (Exception exception) {
@@ -138,6 +152,7 @@ public class BMS {
         }
     }
 
+    // Gens a new integer ID that is the highest ID integer in the file + 1
     private static Integer GenerateID(File file) {
         if (file == ordersTable) {
             Integer highestID = 0;
@@ -199,6 +214,7 @@ public class BMS {
         }
     }
     
+    // Reader functions
     private static ArrayList<Customer> ReadCustomers() {
         ArrayList<Customer> customers = new ArrayList<Customer>();
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(customersTable))) {
@@ -247,6 +263,7 @@ public class BMS {
         return books;
     }
 
+    // Writer functions
     private static void WriteCustomers(ArrayList<Customer> customers) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(customersTable))) {
             for (Customer customer : customers) {
@@ -283,6 +300,7 @@ public class BMS {
         }
     }
 
+    // Finder functions
     private static Integer findCustomerIndex(Integer ID, ArrayList<Customer> customers) {
         for (int i = 0; i < customers.size(); i++) {
             if (customers.get(i).ID() == ID) {
@@ -318,7 +336,7 @@ public class BMS {
 
     private static Integer findCustomerIDByName(String name, ArrayList<Customer> customers) {
         for (Customer customer : customers) {
-            if (customer.name().toUpperCase() == name.toUpperCase()) {
+            if (customer.Name().toUpperCase() == name.toUpperCase()) {
                 return customer.ID();
             }
         }
@@ -327,126 +345,233 @@ public class BMS {
         return -1;
     }
 
+    
     // --TRANSACTIONS--
-    private static void AddBook() {
+    private static void AddBook(Long ISBN) {
         Integer newBookID = GenerateID(booksTable);
-        Book book = new Book(newBookID, scanner);
+        Book book = new Book(newBookID, scanner, ISBN);
 
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(booksTable, true))) {
             oos.writeObject(book);
         } 
         
         catch (Exception exception) {
-
+            System.out.println("\n***ERROR*** Unexpected error writing new book to file.\n");
         }
     }
 
     private static void AddBooks() {
+        ArrayList<Book> books = ReadBooks();
+
         boolean finished = false;
         while (!finished) {
-            AddBook();
+            System.out.println("\nPlease enter the 13 digit ISBN: ");
+            Long ISBN = scanner.nextLong();
+            scanner.nextLine();
+
+            if (ISBN <= 999999999999l || ISBN > 9999999999999l) {
+                System.out.println("\n***ERROR*** ISBN must be 13 digits!\nPlease try again.");
+                continue;
+            }
+
+            // Check for duplicate book ISBN entries!
+            boolean duplicate = false;
+            for (Book book : books) {
+                if (book.ISBN() == ISBN) {
+                    duplicate = true;
+
+                    System.out.println("\nA record already exists for this ISBN. Increase quantity? (Enter 'Y' to accept): ");
+                    String decision = scanner.nextLine();
+
+                    if (decision.equalsIgnoreCase("Y")) {
+                        System.out.println("\nInput the quantity you would like to add: ");
+                        int qty = scanner.nextInt();
+                        scanner.nextLine();
+
+                        book.UpdateQty(qty);
+                    }
+
+                    break;
+                }
+            }
+
+            if (!duplicate) {
+                AddBook(ISBN);
+            }
+            
             System.out.println("\nAdd another book?\n(Enter 'Y' to accept): ");
             String decision = scanner.nextLine();
-            if (decision.toUpperCase() != "Y") {
+            if (!decision.equalsIgnoreCase("Y")) {
                 finished = true;
             }
         }
     }
 
-    private static void EditCustomer(String name) {
-        ArrayList<Customer> customers = ReadCustomers();
-        Integer ID = findCustomerIDByName(name, customers);
-        Integer index = findCustomerIndex(ID, customers);
+    private static void EditCustomer() {
+        System.out.println("\nPlease enter the name of the customer to edit: ");
+        String name = scanner.nextLine();
 
-        if (index != -1) {
-            customers.get(index).updateAddress(scanner);
-            customers.get(index).updateEmail(scanner);
-            customers.get(index).updatePhone(scanner);
-        }   
+        boolean validName = false;
+        while (!validName) {
+            if (name != "") {
+                ArrayList<Customer> customers = ReadCustomers();
+                Integer ID = findCustomerIDByName(name, customers);
+                Integer index = findCustomerIndex(ID, customers);
         
-        WriteCustomers(customers);
+                if (index != -1) {
+                    customers.get(index).UpdateAddress(scanner);
+                    customers.get(index).UpdateEmail(scanner);
+                    customers.get(index).UpdatePhone(scanner);
+                }   
+                
+                WriteCustomers(customers);
+            }
+    
+            else {
+                System.out.println("\n***ERROR*** Names cannot be NULL.\nPlease try again.\n");
+            }
+        }
     }
 
+    private static void NewOrders() {
+        ArrayList<Customer> customers = ReadCustomers();
+        ArrayList<Book> books = ReadBooks();
+        ArrayList<Order> orders = ReadOrders();
 
-    // -- REPORTS--
+        boolean finishedOrders = false;
+        while (!finishedOrders) {
+            // Customer handling for the order
+            int customerIndex = -1;
+            boolean validName = false;
+            while (!validName) {
+                System.out.println("\nPlease enter the customer name for your order: ");
+                String name = scanner.nextLine();
 
+                // If the user inputs null str
+                if (name != "") {
+                    for (Customer customer : customers) {
+                        if (customer.Name().toUpperCase() == name.toUpperCase()) {
+                            Integer ID = findCustomerIDByName(name, customers);
+                            customerIndex = findCustomerIndex(ID, customers);
+                            validName = true;
+                            break;
+                        }
+                    }
 
-    private static void ReportCustomerByName(int ID) {
-        try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(customersTable));
+                    // If the customer couldn't be found!
+                    if (customerIndex == -1) {
+                        System.out.println("\nNo existing customer by that name.\nCreating new customer...");
 
-            boolean found = false;
-            while (!found) {
-                try {
-                    Customer customer = (Customer) ois.readObject();
-                    if (customer.ID() == ID) {
-                        System.out.println(customer);
+                        Integer ID = GenerateID(customersTable);
+                        Customer customer = new Customer(ID, scanner);
+                        customers.add(customer);
+                        WriteCustomers(customers);
+
+                        customerIndex = customers.size() - 1;
+                        validName = true;
                     }
                 }
 
-                catch (Exception exception) {
-                    System.out.println("Customer not found.");
-                    found = true;
+                else {
+                    System.out.println("\n***ERROR*** Name cannot be NULL.\nPlease try again.\n");
                 }
             }
 
-            ois.close();
-        }
+            // Item handling for the order
+            ArrayList<Integer> booksForOrder = new ArrayList<Integer>();
+            ArrayList<Integer> qtysForOrder = new ArrayList<Integer>();
 
-        catch (Exception exception) {
-            System.out.println(FileErrorMsg);
-        }
-    }
+            // Loop to allow buying multiple items
+            boolean finishedItems = false;
+            while (!finishedItems) {
+                // Get the ISBN (id) of the book and the amount user wants to order
+                System.out.println("\nPlease enter the ISBN of the book to add to your order: \n");
+                Long ISBN = scanner.nextLong();
+                System.out.println("\nPlease enter the quantity you'd like to order: \n");
+                int qty = scanner.nextInt();
 
-    private static void ReportCustomerByID(String name) {
-        try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(customersTable));
+                // Lookup the book if its in stock (or exists)
+                for (Book book : books) {
+                    if (book.ISBN() == ISBN) {
 
-            boolean found = false;
-            while (!found) {
-                try {
-                    Customer customer = (Customer) ois.readObject();
-                    if (customer.name().toUpperCase() == name.toUpperCase()) {
-                        System.out.println(customer);
+                        // Make sure there is enough stock
+                        if (book.Qty() >= qty) {
+                            booksForOrder.add(book.ID());
+                            qtysForOrder.add(qty);
+                            book.UpdateQty(qty * -1);
+                        }
+
+                        else {
+                            System.out.println("\nWARNING: Not enough books in stock. Buy remaining stock? (Enter 'Y' to accept): \n");
+                            String decision = scanner.nextLine();
+
+                            if (decision.equalsIgnoreCase("Y")) {
+                                qty = book.Qty();
+                                booksForOrder.add(book.ID());
+                                qtysForOrder.add(qty);
+                                book.UpdateQty(qty * -1);
+
+                                System.out.println("\nRemaining stock added.\n");
+                            }
+                        }
+
+                        break;
                     }
                 }
 
-                catch (Exception exception) {
-                    System.out.println("Customer not found.");
-                    found = true;
+                // Add another book?
+                System.out.println("\nAdd more books to your order? (Enter 'Y' to accept): \n");
+                String decision = scanner.nextLine();
+
+                if (decision.equalsIgnoreCase("Y")) {
+                    finishedItems = true;
                 }
             }
 
-            ois.close();
+            // Gen the order record
+            Integer ID = GenerateID(ordersTable);
+            Order order = new Order(ID, customers.get(customerIndex).ID(), booksForOrder, qtysForOrder);
+
+            // Add it to the arr
+            orders.add(order);
+
+            // Loop?
+            System.out.println("\nOrder submitted. Would you like to add another order? (Enter 'Y' to accept): ");
+            String decision = scanner.nextLine();
+            if (decision.equalsIgnoreCase("Y")) {
+                finishedOrders = true;
+            }
         }
 
-        catch (Exception exception) {
-            System.out.println(FileErrorMsg);
-        }
+        // Write and exit
+        WriteOrders(orders);
     }
 
-    private static void ReportCustomers() {
-        try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(customersTable));
+    private static void ReverseOrder() {
+        System.out.println("\nPlease enter the Order ID to be reversed: ");
+        Integer ID = scanner.nextInt();
+        ArrayList<Order> orders = ReadOrders();
+        int orderIndex = findOrderIndex(ID, orders);
 
-            boolean finished = false;
-            while (!finished) {
-                try {
-                    Customer customer = (Customer) ois.readObject();
-                    System.out.println(customer);
-                }
+        if (orderIndex != -1) {
+        // Book reader call is here because we dont need it outside validation scope and could save us some
+        // speed at runtime if user puts in bad values
+        ArrayList<Book> books = ReadBooks();
 
-                catch (Exception exception) {
-                    finished = true;
-                }
-
-            }
-            
-            ois.close();
+        // Loops over all items in the order, looks up those books in the books arr and adds back the
+        // book qty from the order
+        for (int i = 0; i < orders.get(orderIndex).Items().size(); i++) {
+            Integer bookID = orders.get(orderIndex).Items().get(i);
+            int bookIndex = findBookIndex(bookID, books);
+            books.get(bookIndex).UpdateQty(orders.get(orderIndex).Quantities().get(i));
         }
 
-        catch (Exception exception) {
-            System.out.println(FileErrorMsg);
+        // Cull the order
+        orders.remove(orders.get(orderIndex));
+
+        // Write back
+        WriteOrders(orders);
+        WriteBooks(books);
         }
     }
 }
