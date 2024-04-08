@@ -22,13 +22,13 @@ public class Order implements Serializable {
     // PROPERTIES
     private Integer ID = 0;
     private Integer customerID = 0;
-    private ArrayList<Integer> items;
+    private ArrayList<Book> books;
     private LocalDate date;
 
     // CONSTRUCTOR
-    public Order(Integer customer, ArrayList<Integer> orderItems, Integer orderID) {
+    public Order(Integer orderID, Integer customer, ArrayList<Book> orderBooks) {
         this.customerID = customer;
-        this.items = orderItems;
+        this.books = orderBooks;
         this.date = LocalDate.now(); // Date should be when the order is made, and never change
     }
 
@@ -37,15 +37,15 @@ public class Order implements Serializable {
         return ID;
     }
 
-    public Integer customerID() {
+    public Integer CustomerID() {
         return customerID;
     }
 
-    public ArrayList<Integer> items() {
-        return items;
+    public ArrayList<Book> Books() {
+        return books;
     }
 
-    public String date() {
+    public String Date() {
         return date.toString();
     }
 

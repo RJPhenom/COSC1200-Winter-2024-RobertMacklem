@@ -43,14 +43,14 @@ public class Customer implements Serializable {
             }
 
             else {
-                System.out.println("\n***ERROR*** Name field cannot be NULL. Please re-enter name.\n");
+                System.out.println("\n***ERROR*** Name field cannot be NULL.\nPlease try again.\n");
             }
         }
 
         // Set addr via input
         boolean validAddr = false;
         while (!validAddr) {
-            System.out.println("\nPlease enter customer address (null accepted): ");
+            System.out.println("\nPlease enter customer address (NULL accepted): ");
             String input = scanner.nextLine();
             this.address = input;
             validAddr = true;  // While loop exists for future validation implementations, right now no validation runs on addr
@@ -59,7 +59,7 @@ public class Customer implements Serializable {
         // Set email via input
         boolean validEmail = false;
         while (!validEmail) {
-            System.out.println("\nPlease enter customer email (null accepted): ");
+            System.out.println("\nPlease enter customer email (NULL accepted): ");
             String input = scanner.nextLine();
 
             if (input == "" || input.contains("@")) {
@@ -106,34 +106,71 @@ public class Customer implements Serializable {
         return ID;
     }
 
-    public String name() {
+    public String Name() {
         return name;
     }
 
-    public String address() {
+    public String Address() {
         return address;
     }
 
-    public String email() {
+    public String Email() {
         return email;
     }
 
-    public Integer phone() {
+    public Integer Phone() {
         return phone;
     }
 
     // SETTERS
     // i.e.: Updating customer information
-    public void updateAddress(String newAddress) {
-        this.address = newAddress;
+    public void UpdateAddress(Scanner scanner) {
+        boolean validAddr = false;
+        while (!validAddr) {
+            System.out.println("\nPlease enter customer address (NULL accepted): ");
+            String input = scanner.nextLine();
+            this.address = input;
+            validAddr = true;  // While loop exists for future validation implementations, right now no validation runs on addr
+        }
     }
 
-    public void updateEmail(String newEmail) {
-        this.email = newEmail;
+    public void UpdateEmail(Scanner scanner) {
+        boolean validEmail = false;
+        while (!validEmail) {
+            System.out.println("\nPlease enter customer email (NULL accepted): ");
+            String input = scanner.nextLine();
+
+            if (input == "" || input.contains("@")) {
+                this.email = input;
+                validEmail = true;
+            }
+
+            else {
+                System.out.println("\n***ERROR*** Emails must contain a '@'.\nIf you do not have an email, please enter NULL.\n");
+            }
+        }
     }
 
-    public void updatePhone(Integer newPhone) {
-        this.phone = newPhone;
+    public void UpdatePhone(Scanner scanner) {
+        boolean validPhone = false;
+        while (!validPhone) {
+            System.out.println("\nPlease enter customer phone # (digits only): ");
+            try {
+                Integer input = scanner.nextInt();
+                if (input > 999999999) {
+                    this.phone = input;
+                }
+                
+                
+                else {
+                    System.out.println("\n***ERROR*** Phone # must be at least 10 digits.\nPlease try again.]n");
+                }
+            }
+
+            catch (Exception exception) {
+                System.out.println("\n***ERROR*** Phone # must be entered using DIGITS only. (EXAMPLE: 18005551234)\nPlease try again.\n");
+            }
+        }
     }
 
     // ORDERS HANDLING
@@ -149,7 +186,7 @@ public class Customer implements Serializable {
     }
 
     // Retrieves all orders this customer has made (for reporitng)
-    public ArrayList<Order> retrieveOrders() {
+    public ArrayList<Order> RetrieveOrders() {
         ArrayList<Order> retrievedOrders = new ArrayList<Order>();
 
         for (Order order : orders) {
@@ -161,11 +198,11 @@ public class Customer implements Serializable {
 
     // These two method retrieve a single order, either by index in the list or
     // by the orderID (likely the preferable method).
-    public Order retrieveOrderByIndex(int index) {
+    public Order RetrieveOrderByIndex(int index) {
         return orders.get(index);
     }
 
-    public Order retrieveOrderByID(Integer orderID) {
+    public Order RetrieveOrderByID(Integer orderID) {
         for (Order order : orders) {
             if (order.ID() == orderID) {
                 return order;

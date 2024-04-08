@@ -66,6 +66,7 @@ public class BMS {
         put(3, () -> {});
     }};
 
+
     // --VARS--
     // Generic scanner (for menu navigation)
     static Scanner scanner = new Scanner(System.in);
@@ -76,6 +77,7 @@ public class BMS {
     static File ordersTable = new File("Orders");
     static File customersTable = new File("Customers");
     static File booksTable = new File("Books");
+
 
     // --MAIN--
     public static void main(String args[]) {
@@ -109,6 +111,7 @@ public class BMS {
             }
         }
     }
+
 
     // --FILE HANDLING--
     // Init runs once, when program starts to ensure there are the files for the live session.
@@ -196,6 +199,134 @@ public class BMS {
         }
     }
     
+    private static ArrayList<Customer> ReadCustomers() {
+        ArrayList<Customer> customers = new ArrayList<Customer>();
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(customersTable))) {
+            while (true) {
+                Customer customer = (Customer) ois.readObject();
+                customers.add(customer);
+            }
+        } 
+        
+        catch (Exception exception) {
+
+        } 
+
+        return customers;
+    }
+
+    private static ArrayList<Order> ReadOrders() {
+        ArrayList<Order> orders = new ArrayList<Order>();
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(customersTable))) {
+            while (true) {
+                Order order = (Order) ois.readObject();
+                orders.add(order);
+            }
+        } 
+        
+        catch (Exception exception) {
+
+        } 
+
+        return orders;
+    }
+
+    private static ArrayList<Book> ReadBooks() {
+        ArrayList<Book> books = new ArrayList<Book>();
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(customersTable))) {
+            while (true) {
+                Book book = (Book) ois.readObject();
+                books.add(book);
+            }
+        } 
+        
+        catch (Exception exception) {
+
+        } 
+
+        return books;
+    }
+
+    private static void WriteCustomers(ArrayList<Customer> customers) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(customersTable))) {
+            for (Customer customer : customers) {
+                oos.writeObject(customer);
+            }
+        } 
+        
+        catch (Exception exception) {
+
+        }
+    }
+
+    private static void WriteOrders(ArrayList<Order> orders) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ordersTable))) {
+            for (Order order : orders) {
+                oos.writeObject(order);
+            }
+        } 
+        
+        catch (Exception exception) {
+
+        }
+    }
+
+    private static void WriteBooks(ArrayList<Book> books) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(booksTable))) {
+            for (Book book : books) {
+                oos.writeObject(book);
+            }
+        } 
+        
+        catch (Exception exception) {
+
+        }
+    }
+
+    private static Integer findCustomerIndex(Integer ID, ArrayList<Customer> customers) {
+        for (int i = 0; i < customers.size(); i++) {
+            if (customers.get(i).ID() == ID) {
+                return i;
+            }
+        }
+
+        System.out.println("\nWARNING: ID not found!\n");
+        return -1;
+    }
+
+    private static Integer findOrderIndex(Integer ID, ArrayList<Order> orders) {
+        for (int i = 0; i < orders.size(); i++) {
+            if (orders.get(i).ID() == ID) {
+                return i;
+            }
+        }
+
+        System.out.println("\nWARNING: ID not found!\n");
+        return -1;
+    }
+
+    private static Integer findBookIndex(Integer ID, ArrayList<Book> books) {
+        for (int i = 0; i < books.size(); i++) {
+            if (books.get(i).ID() == ID) {
+                return i;
+            }
+        }
+
+        System.out.println("\nWARNING: ID not found!\n");
+        return -1;
+    }
+
+    private static Integer findCustomerIDByName(String name, ArrayList<Customer> customers) {
+        for (Customer customer : customers) {
+            if (customer.name().toUpperCase() == name.toUpperCase()) {
+                return customer.ID();
+            }
+        }
+
+        System.out.println("\nWARNING: Customer not found!\n");
+        return -1;
+    }
+
     // --TRANSACTIONS--
     private static void AddBook() {
         Integer newBookID = GenerateID(booksTable);
@@ -222,9 +353,24 @@ public class BMS {
         }
     }
 
+    private static void EditCustomer(String name) {
+        ArrayList<Customer> customers = ReadCustomers();
+        Integer ID = findCustomerIDByName(name, customers);
+        Integer index = findCustomerIndex(ID, customers);
+
+        if (index != -1) {
+            customers.get(index).updateAddress(scanner);
+            customers.get(index).updateEmail(scanner);
+            customers.get(index).updatePhone(scanner);
+        }   
+        
+        WriteCustomers(customers);
+    }
+
 
     // -- REPORTS--
-    // Customer reports
+
+
     private static void ReportCustomerByName(int ID) {
         try {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(customersTable));

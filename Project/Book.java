@@ -25,6 +25,7 @@ public class Book implements Serializable {
     private String author = "";
     private String publisher = "";
     private Float price = 0.0f;
+    private Integer qty = 0;
 
     // CONSTRUCTOR
     public Book(Integer bookID, Scanner scanner) {
@@ -111,32 +112,40 @@ public class Book implements Serializable {
 
     // GETTERS
     public Integer ID() {
-        return ID;
+        return this.ID;
     }
 
     public Integer ISBN() {
-        return ISBN;
+        return this.ISBN;
     }
 
     public String Title() {
-        return title;
+        return this.title;
     }
 
     public String Author() {
-        return author;
+        return this.author;
     }
 
     public String Publisher() {
-        return publisher;
+        return this.publisher;
     }
 
     public Float Price() {
-        return price;
+        return this.price;
+    }
+
+    public Integer Qty() {
+        return this.qty;
     }
 
     // SETTERS (price only)
-    public void setPrice(Float price) {
+    public void SetPrice(Float price) {
         this.price = price;
+    }
+
+    public void UpdateQty(Integer amount) {
+        this.qty += amount;
     }
 
     // Reporting
