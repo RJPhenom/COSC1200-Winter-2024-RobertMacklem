@@ -14,8 +14,9 @@
 //                      2024 at Durham College.
 //                      
 // ***************************************************************************************
+import java.io.Serializable;
 
-public class OrderItem {
+public class OrderItem implements Serializable {
     // Bridge table struct
     public Integer orderID;
     public Integer itemID;

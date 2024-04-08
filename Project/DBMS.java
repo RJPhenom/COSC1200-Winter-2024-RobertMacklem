@@ -173,62 +173,103 @@ public class DBMS {
     // INSERT
     public void Insert(File table, Object record) {
         int tableIndex = IdentifyTable(table);
-        try (ObjectOutputStream OOS = new ObjectOutputStream(new FileOutputStream(table, true))) {
-            switch (tableIndex) {
-                case 0:
+
+        switch (tableIndex) {
+            case 0:
+                ArrayList<Order> orders = SelectOrders(); 
+                try (ObjectOutputStream OOS = new ObjectOutputStream(new FileOutputStream(table))) {
                     Order order = (Order) record;
                     if (!IdentifyDuplicate(table, order.ID())) {
-                        OOS.writeObject(order);
+                        orders.add(order);
+
+                        for (Order o : orders) {
+                            OOS.writeObject(o);
+                        }
+
                         System.out.println("\nOrder write successful.");
                     }
 
                     else {
                         System.out.println("\nOrder write failed: duplicate entry detected.");
                     }
+                }
 
-                    break;
-    
-                case 1:
+                catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+
+                break;
+
+            case 1:
+                ArrayList<Customer> customers = SelectCustomers(); 
+                try (ObjectOutputStream OOS = new ObjectOutputStream(new FileOutputStream(table))) {
                     Customer customer = (Customer) record;
                     if (!IdentifyDuplicate(table, customer.ID())) {
-                        OOS.writeObject(customer);
+                        customers.add(customer);
+
+                        for (Customer c : customers) {
+                            OOS.writeObject(c);
+                        }
+                        
                         System.out.println("\nCustomer write successful.");
                     }
 
                     else {
                         System.out.println("\nCustomer write failed: duplicate entry detected.");
                     }
+                }
 
-                    break;
-    
-                case 2:
+                catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+
+                break;
+
+            case 2:
+                ArrayList<Book> books = SelectBooks(); 
+                try (ObjectOutputStream OOS = new ObjectOutputStream(new FileOutputStream(table))) {
                     Book book = (Book) record;
                     if (!IdentifyDuplicate(table, book.ID())) {
-                        OOS.writeObject(book);
-                        System.out.println("\nBook write successful.");
+                        books.add(book);
+
+                        for (Book b : books) {
+                            OOS.writeObject(b);
+                        }                        System.out.println("\nOrder write successful.");
                     }
 
                     else {
-                        System.out.println("\nBook write failed: duplicate entry detected.");
+                        System.out.println("\nOrder write failed: duplicate entry detected.");
                     }
-                    
-                    break;
-            
-                case 3:
+                }
+
+                catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+
+                break;
+        
+            case 3:
+                ArrayList<OrderItem> orderItems = SelectOrderItems(); 
+                try (ObjectOutputStream OOS = new ObjectOutputStream(new FileOutputStream(table))) {
                     OrderItem orderItem = (OrderItem) record;
-                    OOS.writeObject(orderItem);
-                    System.out.println("\nPrder Item write successful.");
-                    break;
+                    orderItems.add(orderItem);
 
-                default:
-                    System.out.println("\nWARNING: Table index out of range! [Insert FAILED]");
-                    break;
+                    for (OrderItem oi : orderItems) {
+                        OOS.writeObject(oi);
+                    }                        
+                    
+                    System.out.println("\nOrder write successful.");                
+                }
+
+                catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+
+                break;
+
+            default:
+                System.out.println("\nWARNING: Table not found! [Insert FAILED]");
             }
-        }
-
-        catch (Exception exception) {
-            exception.printStackTrace();
-        }
     }
 
     // SELECT
