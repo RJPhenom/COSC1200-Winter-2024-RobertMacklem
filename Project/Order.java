@@ -14,10 +14,53 @@
 //                      2024 at Durham College.
 //                      
 // ***************************************************************************************
+import java.util.ArrayList;
+import java.io.Serializable;
+import java.time.*;
 
-public class Order {
-    int ID = 0;
-    int customerID = 0;
-    int items[];
-    String date;
+public class Order implements Serializable {
+    // PROPERTIES
+    private Integer ID = 0;
+    private Integer customerID = 0;
+    private ArrayList<Integer> items;
+    private LocalDate date;
+
+    // CONSTRUCTOR
+    public Order(Integer customer, ArrayList<Integer> orderItems, Integer orderID) {
+        this.customerID = customer;
+        this.items = orderItems;
+        this.date = LocalDate.now(); // Date should be when the order is made, and never change
+    }
+
+    // GETTERS
+    public Integer ID() {
+        return ID;
+    }
+
+    public Integer customerID() {
+        return customerID;
+    }
+
+    public ArrayList<Integer> items() {
+        return items;
+    }
+
+    public String date() {
+        return date.toString();
+    }
+
+    // No setters since order class is constructed on order finalization.
+    // We do not need to update orders, ever. Returns and exchanges can be
+    // handled as new orders.
+
+    // Reporting
+    public void SelfReport() {
+        String report = "\n" +
+            "Order ID: " + this.ID.toString() + " | " +
+            "Customer ID: " + this.customerID.toString() + " | " +
+            "Item(s): " + this.items.toString() + " | " +
+            "Date: " + this.date.toString();
+    
+        System.out.println(report);
+    }
 }
