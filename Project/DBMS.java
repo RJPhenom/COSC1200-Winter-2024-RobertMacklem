@@ -288,66 +288,67 @@ public class DBMS {
     }
 
     // INSERT
-    public void Insert(File table, Object record) {
-        int tableIndex = IdentifyTable(table);
+    public void InsertOrder(Order inOrder) {
+        boolean duplicate = false;
+        for (Order order : orders) {
+            if (order.ID() == inOrder.ID()) {
+                duplicate = true;
 
-        switch (tableIndex) {
-            case 0:
-                boolean duplicateOrder = IdentifyDuplicate(table, ((Order) record).ID());
-                Order order = (Order) record;
-                if (!duplicateOrder) {
-                    orders.add(order);
-
-                    System.out.println("\nOrder added successfully.");
-                }
-
-                else {
-                    System.out.println("\nOrder insert failed: duplicate entry detected.");
-                }
+                System.out.println("\nWARNING: Duplicate insertion rejected. [InsertOrder FAILED]");
 
                 break;
-
-            case 1:
-                boolean duplicateCustomer = IdentifyDuplicate(table, ((Customer) record).ID());
-                Customer customer = (Customer) record;
-                if (!duplicateCustomer) {
-                    customers.add(customer);
-                    
-                    System.out.println("\nCustomer added successfully.");
-                }
-
-                else {
-                    System.out.println("\nCustomer insert failed: duplicate entry detected.");
-                }
-
-                break;
-
-            case 2:
-                boolean duplicateBook = IdentifyDuplicate(table, ((Book) record).ID());
-                Book book = (Book) record;
-                if (!duplicateBook) {
-                    books.add(book);                   
-                    
-                    System.out.println("\nBook added successfully.");
-                }
-
-                else {
-                    System.out.println("\nBook insert failed: duplicate entry detected.");
-                }
-
-                break;
-        
-            case 3:
-                OrderItem orderItem = (OrderItem) record;
-                orderItems.add(orderItem);                    
-                
-                System.out.println("\nItem added successfully.");                
-
-                break;
-
-            default:
-                System.out.println("\nWARNING: Table not found! [Insert FAILED]");
             }
+        }
+
+        if (!duplicate) {
+            orders.add(inOrder);
+        }
+    }
+    public void InsertCustomer(Customer inCustomer) {
+        boolean duplicate = false;
+        for (Customer customer : customers) {
+            if (customer.ID() == inCustomer.ID()) {
+                duplicate = true;
+                System.out.println("\nWARNING: Duplicate insertion rejected. [InsertCustomer FAILED]");
+            }
+        }
+
+        if (!duplicate) {
+            customers.add(inCustomer);
+        }
+    }
+    public void InsertBook(Book inBook) {
+        boolean duplicate = false;
+        for (Book book : books) {
+            if (book.ID() == inBook.ID()) {
+                duplicate = true;
+                System.out.println("\nWARNING: Duplicate insertion rejected. [InsertBook FAILED]");
+            }
+        }
+
+        if (!duplicate) {
+            books.add(inBook);
+        }
+    }
+    public void InsertOrderItem(OrderItem inOrderItem) {
+        boolean duplicate = false;
+        for (OrderItem orderItem : orderItems) {
+            if (orderItem.orderID == inOrderItem.orderID && orderItem.itemID == inOrderItem.itemID) {
+                duplicate = true;
+                System.out.println("\nWARNING: Duplicate insertion rejected. [InsertOrderItem FAILED]");
+            }
+        }
+
+        if (!duplicate) {
+            for (Book book : books) {
+                // Subtract books from stock
+                if (book.ID() == inOrderItem.itemID) {
+                    book.UpdateQty(inOrderItem.qty * -1);
+                }
+            }
+            
+            orderItems.add(inOrderItem);
+        }
     }
 
     // SELECT (these are like getters on our arrs)
@@ -359,7 +360,7 @@ public class DBMS {
 
         while (identifiedOrder == null) {
             int i = 0;
-            if (orders.get(i).ID() == ID) {
+            if (!orders.isEmpty() && orders.get(i).ID() == ID) {
                 identifiedOrder = orders.get(i);
                 System.out.println("\nOrder found.");
             }
@@ -380,7 +381,7 @@ public class DBMS {
 
         while (identifiedCustomer == null) {
             int i = 0;
-            if (customers.get(i).ID() == ID) {
+            if (!customers.isEmpty() && customers.get(i).ID() == ID) {
                 identifiedCustomer = customers.get(i);
                 System.out.println("\nCustomer found.");
             }
@@ -397,7 +398,7 @@ public class DBMS {
 
         while (identifiedCustomer == null) {
             int i = 0;
-            if (customers.get(i).Name() == name) {
+            if (!customers.isEmpty() && customers.get(i).Name() == name) {
                 identifiedCustomer = customers.get(i);
                 System.out.println("\nCustomer found.");
             }
@@ -418,7 +419,7 @@ public class DBMS {
 
         while (identifiedBook == null) {
             int i = 0;
-            if (customers.get(i).ID() == ID) {
+            if (!books.isEmpty() && books.get(i).ID() == ID) {
                 identifiedBook = books.get(i);
                 System.out.println("\nBook found.");
             }
@@ -435,7 +436,7 @@ public class DBMS {
 
         while (identifiedBook == null) {
             int i = 0;
-            if (customers.get(i).ISBN() == ISBN) {
+            if (!books.isEmpty() && books.get(i).ISBN() == ISBN) {
                 identifiedBook = books.get(i);
                 System.out.println("\nBook found.");
             }

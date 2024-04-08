@@ -122,13 +122,10 @@ public class BMS {
     private static void AddBook(Long ISBN) {
         Integer newBookID = db.GenerateUniqueID(db.Books());
         Book book = newBook(newBookID, ISBN);
-
-        db.Insert(db.Books(), book);
+        db.InsertBook(book);
     }
 
     private static void AddBooks() {
-        ArrayList<Book> books = db.SelectBooks();
-
         boolean finished = false;
         while (!finished) {
             System.out.println("\nPlease enter the 13 digit ISBN: ");
@@ -140,10 +137,9 @@ public class BMS {
                 continue;
             }
 
-
             // Check for duplicate book ISBN entries
             boolean duplicate = false;
-            for (Book book : books) {
+            for (Book book : db.SelectBooks()) {
                 if (book.ISBN() == ISBN) {
                     duplicate = true;
                     System.out.println("\nA record already exists for this ISBN. Increase quantity? (Enter 'Y' to accept): ");
@@ -192,7 +188,7 @@ public class BMS {
         boolean finishedOrders = false;
         while (!finishedOrders) {
             // Init the data containers for writing (later)
-            ArrayList<OrderItem> items = new ArrayList<OrderItem>();
+            ArrayList<OrderItem> itemsForOrder = new ArrayList<OrderItem>();
             Customer identifiedCustomer = null;
             Integer orderID = db.GenerateUniqueID(db.Orders());
 
@@ -208,7 +204,7 @@ public class BMS {
                 Customer newCustomer = newCustomer(newCustomerID);
 
                 try {
-                    db.Insert(db.Customers(), newCustomer);
+                    db.InsertCustomer(newCustomer);
                 }
 
                 catch (Exception exception) {
@@ -237,7 +233,7 @@ public class BMS {
                         // Make sure there is enough stock
                         if (book.Qty() >= qty) {
                             OrderItem item = new OrderItem(orderID, book.ID(), qty);
-                            items.add(item);
+                            itemsForOrder.add(item);
                         }
 
                         else if (book.Qty() == 0) {
@@ -251,7 +247,7 @@ public class BMS {
                             if (decision.equalsIgnoreCase("Y")) {
                                 qty = book.Qty();
                                 OrderItem item = new OrderItem(orderID, book.ID(), qty);
-                                db.Insert(db.OrderItems(), item);
+                                itemsForOrder.add(item);
                                 book.UpdateQty(qty * -1);
 
                                 System.out.println("\nRemaining stock added.\n");
@@ -282,12 +278,11 @@ public class BMS {
             try {
                 // Gen the order record and insert
                 Order order = new Order(orderID, identifiedCustomer.ID(), LocalDate.now());
-                db.Insert(db.Orders(), order);
+                db.InsertOrder(order);
 
                 // Gen the items records and insert
-                for (OrderItem orderItem : items) {
-                    db.Insert(db.OrderItems(), orderItem);
-                    db.UpdateBookByID(orderItem.itemID, orderItem.qty * -1);
+                for (OrderItem orderItem : itemsForOrder) {
+                    db.InsertOrderItem(orderItem);
                 }
 
                 System.out.println("\nOrder submission successful.");
