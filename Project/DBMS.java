@@ -25,16 +25,10 @@ public class DBMS {
     private ArrayList<File> db = new ArrayList<File>();
 
     // Tables
-    private File ordersTable = new File("Orders");
-    private File customersTable = new File("Customers");
-    private File booksTable = new File("Books");
-    private File orderItemsTable = new File("OrderItems");
-
-    // Data
-    ArrayList<Order> orders = new ArrayList<Order>();
-    ArrayList<Customer> customers = new ArrayList<Customer>();
-    ArrayList<Book> books = new ArrayList<Book>();
-    ArrayList<OrderItem> orderItems = new ArrayList<OrderItem>();
+    private File ordersTable = new File("Orders.txt");
+    private File customersTable = new File("Customers.txt");
+    private File booksTable = new File("Books.txt");
+    private File orderItemsTable = new File("OrderItems.txt");
 
     // Constructor (handles file init)
     public DBMS() {
@@ -59,9 +53,6 @@ public class DBMS {
                 }
             }
         }
-
-        // Initialize our db by reading files
-        Init();
     }
 
     // Getters
@@ -78,113 +69,54 @@ public class DBMS {
         return this.orderItemsTable;
     }
 
-    // INIT 
-    private void Init() {
-        // Init order data
-        try (ObjectInputStream orderOIS = new ObjectInputStream(new FileInputStream(ordersTable))) {
-            while (true) {
-                Order order = (Order) orderOIS.readObject();
-                orders.add(order);
-            }
-        }
 
-        catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        // Init customer data
-        try (ObjectInputStream customerOIS = new ObjectInputStream(new FileInputStream((customersTable)))) {
-            while (true) {
-                Customer customer = (Customer) customerOIS.readObject();
-                customers.add(customer);
-            }
-        }
-
-        catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        // Init book data
-        try (ObjectInputStream booksOIS = new ObjectInputStream(new FileInputStream(booksTable))) {
-            while (true) {
-                Book book = (Book) booksOIS.readObject();
-                books.add(book);
-            }
-        }
-
-        catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        // Init item data
-        try (ObjectInputStream orderItemsOIS = new ObjectInputStream(new FileInputStream(orderItemsTable))) {
-            while (true) {
-                OrderItem item = (OrderItem) orderItemsOIS.readObject();
-                orderItems.add(item);
-            }
-        }
-
-        catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-        if (orders.isEmpty() || customers.isEmpty() || books.isEmpty() || orderItems.isEmpty()) {
-            System.out.println(
-                "\nWARNING: Database initialization complete." +
-                "\nOne or more table was found empty." +
-                "\n(Expected result on if you have not added records)"       
-            );
-        }
-    }
-
-    // OUT
-    public void Out() {
-        // Out order data
-        try (ObjectOutput orderOOS = new ObjectOutputStream(new FileOutputStream(ordersTable))) {
+    // Writers
+    private void WriteOrders(ArrayList<Order> orders) {
+        try (ObjectOutputStream orderOOS = new ObjectOutputStream(new FileOutputStream(ordersTable))) {
             for (Order order : orders) {
                 orderOOS.writeObject(order);
             }
 
-            System.out.println("\nOrders file write successful.");
+            System.out.println("\nOrder written successfully.");
         }
 
         catch (Exception exception) {
             exception.printStackTrace();
         }
-
-        // Out order data
-        try (ObjectOutput cusomterOOS = new ObjectOutputStream(new FileOutputStream(customersTable))) {
+    }
+    private void WriteCustomers(ArrayList<Customer> customers) {
+        try (ObjectOutputStream customerOOS = new ObjectOutputStream(new FileOutputStream(customersTable))) {
             for (Customer customer : customers) {
-                cusomterOOS.writeObject(customer);
+                customerOOS.writeObject(customer);
             }
 
-            System.out.println("Customers file write successful.");
+            System.out.println("\nCustomers written successfully.");
         }
 
         catch (Exception exception) {
             exception.printStackTrace();
         }
-
-        // Out order data
-        try (ObjectOutput booksOOS = new ObjectOutputStream(new FileOutputStream(booksTable))) {
+    }
+    private void WriteBooks(ArrayList<Book> books) {
+        try (ObjectOutputStream bookOOS = new ObjectOutputStream(new FileOutputStream(booksTable))) {
             for (Book book : books) {
-                booksOOS.writeObject(book);
+                bookOOS.writeObject(book);
             }
 
-            System.out.println("Books file write successful.");
+            System.out.println("\nBooks written successfully.");
         }
 
         catch (Exception exception) {
             exception.printStackTrace();
         }
-
-        // Out items data
-        try (ObjectOutput orderItemsOOS = new ObjectOutputStream(new FileOutputStream(orderItemsTable))) {
-            for (OrderItem item : orderItems) {
-                orderItemsOOS.writeObject(item);
+    }
+    private void WriteOrderItems(ArrayList<OrderItem> items) {
+        try (ObjectOutputStream oiOOS = new ObjectOutputStream(new FileOutputStream(orderItemsTable))) {
+            for (OrderItem item : items) {
+                oiOOS.writeObject(item);
             }
 
-            System.out.println("Items file write successful.");
+            System.out.println("\nOrder items written successfully.");
         }
 
         catch (Exception exception) {
@@ -288,7 +220,9 @@ public class DBMS {
     }
 
     // INSERT
-    public void InsertOrder(Order inOrder) {
+    public boolean InsertOrder(Order inOrder) {
+        ArrayList<Order> orders = SelectOrders();
+
         boolean duplicate = false;
         for (Order order : orders) {
             if (order.ID() == inOrder.ID()) {
@@ -302,37 +236,52 @@ public class DBMS {
 
         if (!duplicate) {
             orders.add(inOrder);
+            WriteOrders(orders);
         }
+
+        return !duplicate;  // Returns true if insertion is successful
     }
-    public void InsertCustomer(Customer inCustomer) {
+    public boolean InsertCustomer(Customer inCustomer) {
+        ArrayList<Customer> customers = SelectCustomers();
+
         boolean duplicate = false;
         for (Customer customer : customers) {
             if (customer.ID() == inCustomer.ID()) {
                 duplicate = true;
-                System.out.println("\nWARNING: Duplicate insertion rejected. [InsertCustomer FAILED]");
+                System.out.println("\nWARNING: Duplicate insertion rejected. [InsertOrderItem FAILED]");
             }
         }
 
         if (!duplicate) {
             customers.add(inCustomer);
+            WriteCustomers(customers);
         }
+        
+        return !duplicate;  // Returns true if insertion is successful
     }
-    public void InsertBook(Book inBook) {
+    public boolean InsertBook(Book inBook) {
+        ArrayList<Book> books = SelectBooks();
+
         boolean duplicate = false;
         for (Book book : books) {
             if (book.ID() == inBook.ID()) {
                 duplicate = true;
-                System.out.println("\nWARNING: Duplicate insertion rejected. [InsertBook FAILED]");
+                System.out.println("\nWARNING: Duplicate insertion rejected. [InsertOrderItem FAILED]");
             }
         }
 
         if (!duplicate) {
             books.add(inBook);
+            WriteBooks(books);
         }
+
+        return !duplicate;  // Returns true if insertion is successful
     }
-    public void InsertOrderItem(OrderItem inOrderItem) {
+    public boolean InsertOrderItem(OrderItem inOrderItem) {
+        ArrayList<OrderItem> items = SelectOrderItems();
+
         boolean duplicate = false;
-        for (OrderItem orderItem : orderItems) {
+        for (OrderItem orderItem : items) {
             if (orderItem.orderID == inOrderItem.orderID && orderItem.itemID == inOrderItem.itemID) {
                 duplicate = true;
                 System.out.println("\nWARNING: Duplicate insertion rejected. [InsertOrderItem FAILED]");
@@ -340,91 +289,155 @@ public class DBMS {
         }
 
         if (!duplicate) {
+            ArrayList<Book> books = SelectBooks();
             for (Book book : books) {
                 // Subtract books from stock
                 if (book.ID() == inOrderItem.itemID) {
-                    book.UpdateQty(inOrderItem.qty * -1);
+                    UpdateBookByID(book.ID(), inOrderItem.qty * -1);
                 }
             }
-            
-            orderItems.add(inOrderItem);
+
+            items.add(inOrderItem);
+            WriteOrderItems(items);
         }
+
+        return !duplicate;  // Returns true if insertion is successful
     }
 
-    // SELECT (these are like getters on our arrs)
+    // SELECT
     public ArrayList<Order> SelectOrders() {
+        ArrayList<Order> orders = new ArrayList<Order>();
+
+        try (ObjectInputStream orderOIS = new ObjectInputStream(new FileInputStream(ordersTable))) {
+            while (true) {
+                Order order = (Order) orderOIS.readObject();
+                orders.add(order);
+            }
+        }
+
+        catch (Exception exception) {
+            exception.printStackTrace();
+        }
+
         return orders;
     }
     public Order SelectOrderByID(Integer ID) {
         Order identifiedOrder = null;
 
-        while (identifiedOrder == null) {
-            int i = 0;
-            if (!orders.isEmpty() && orders.get(i).ID() == ID) {
-                identifiedOrder = orders.get(i);
-                System.out.println("\nOrder found.");
-            }
+        try (ObjectInputStream orderOIS = new ObjectInputStream(new FileInputStream(ordersTable))) {
+            while (true) {
+                Order order = (Order) orderOIS.readObject();
+                if (order.ID() == ID) {
+                    identifiedOrder = order;
+                    System.out.println("\nCustomer found!");
 
-            i++;
+                    break;
+                }
+            }
         }
 
-        System.out.println("\nWARNING: Order not found! [SelectOrderByID FAILED]");
+        catch (Exception exception) {
+            System.out.println("\nWARNING: Order not found! [SelectOrderByID FAILED]");
+            exception.printStackTrace();
+        }
 
         return identifiedOrder;
     }
 
     public ArrayList<Customer> SelectCustomers() {
+        ArrayList<Customer> customers = new ArrayList<Customer>();
+
+        try (ObjectInputStream customerOIS = new ObjectInputStream(new FileInputStream((customersTable)))) {
+            while (true) {
+                Customer customer = (Customer) customerOIS.readObject();
+                customers.add(customer);
+            }
+        }
+
+        catch (Exception exception) {
+            exception.printStackTrace();
+        }
+
         return customers;
     }
     public Customer SelectCustomerByID(Integer ID) {
         Customer identifiedCustomer = null;
 
-        while (identifiedCustomer == null) {
-            int i = 0;
-            if (!customers.isEmpty() && customers.get(i).ID() == ID) {
-                identifiedCustomer = customers.get(i);
-                System.out.println("\nCustomer found.");
-            }
+        try (ObjectInputStream customerOIS = new ObjectInputStream(new FileInputStream(customersTable))) {
+            while (true) {
+                Customer customer = (Customer) customerOIS.readObject();
+                if (customer.ID() == ID) {
+                    identifiedCustomer = customer;
+                    System.out.println("\nCustomer found!");
 
-            i++;
+                    break;
+                }
+            }
         }
 
-        System.out.println("\nWARNING: Customer not found! [SelectCustomerByID FAILED]");
+        catch (Exception exception) {
+            System.out.println("\nWARNING: Customer not found! [SelectCustomerByID FAILED]");
+            exception.printStackTrace();
+        }
         
         return identifiedCustomer;
     }
     public Customer SelectCustomerByName(String name) {
         Customer identifiedCustomer = null;
 
-        while (identifiedCustomer == null) {
-            int i = 0;
-            if (!customers.isEmpty() && customers.get(i).Name() == name) {
-                identifiedCustomer = customers.get(i);
-                System.out.println("\nCustomer found.");
-            }
+        try (ObjectInputStream customerOIS = new ObjectInputStream(new FileInputStream(customersTable))) {
+            while (true) {
+                Customer customer = (Customer) customerOIS.readObject();
+                if (customer.Name().equalsIgnoreCase(name)) {
+                    identifiedCustomer = customer;
+                    System.out.println("\nCustomer found!");
 
-            i++;
+                    break;
+                }
+            }
         }
 
-        System.out.println("\nWARNING: Customer not found! [SelectCustomerByName FAILED]");
+        catch (Exception exception) {
+            System.out.println("\nWARNING: Customer not found! [SelectCustomerByName FAILED]");
+            exception.printStackTrace();
+        }
         
         return identifiedCustomer;
     }
 
     public ArrayList<Book> SelectBooks() {
+        ArrayList<Book> books = new ArrayList<Book>();
+
+        try (ObjectInputStream booksOIS = new ObjectInputStream(new FileInputStream(booksTable))) {
+            while (true) {
+                Book book = (Book) booksOIS.readObject();
+                books.add(book);
+            }
+        }
+
+        catch (Exception exception) {
+            exception.printStackTrace();
+        }
+
         return books;
     }
     public Book SelectBookByID(Integer ID) {
         Book identifiedBook = null;
 
-        while (identifiedBook == null) {
-            int i = 0;
-            if (!books.isEmpty() && books.get(i).ID() == ID) {
-                identifiedBook = books.get(i);
-                System.out.println("\nBook found.");
-            }
+        try (ObjectInputStream bookOIS = new ObjectInputStream(new FileInputStream(booksTable))) {
+            while (true) {
+                Book book = (Book) bookOIS.readObject();
+                if (book.ID() == ID) {
+                    identifiedBook = book;
+                    System.out.println("\nBook found!");
 
-            i++;
+                    break;
+                }
+            }
+        }
+
+        catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         System.out.println("\nWARNING: Book not found! [SelectCustomerByID FAILED]");
@@ -434,14 +447,20 @@ public class DBMS {
     public Book SelectBookByISBN(Long ISBN) {
         Book identifiedBook = null;
 
-        while (identifiedBook == null) {
-            int i = 0;
-            if (!books.isEmpty() && books.get(i).ISBN() == ISBN) {
-                identifiedBook = books.get(i);
-                System.out.println("\nBook found.");
+        try (ObjectInputStream bookOIS = new ObjectInputStream(new FileInputStream(booksTable))) {
+            while (true) {
+                Book book = (Book) bookOIS.readObject();
+                if (book.ISBN() == ISBN) {
+                    identifiedBook = book;
+                    System.out.println("\nBook found!");
+                    
+                    break;
+                }
             }
+        }
 
-            i++;
+        catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         System.out.println("\nWARNING: Book not found! [SelectCustomerByID FAILED]");
@@ -450,15 +469,35 @@ public class DBMS {
     }
 
     private ArrayList<OrderItem> SelectOrderItems() {
-        return orderItems;
+        ArrayList<OrderItem> items = new ArrayList<OrderItem>();
+
+        try (ObjectInputStream oiOIS = new ObjectInputStream(new FileInputStream(orderItemsTable))) {
+            while (true) {
+                OrderItem item = (OrderItem) oiOIS.readObject();
+                items.add(item);
+            }
+        }
+
+        catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        
+        return items;
     }
     public ArrayList<OrderItem> SelectOrderItemsByOrderID(Integer ID) {
         ArrayList<OrderItem> items = new ArrayList<OrderItem>();
 
-        for (OrderItem item : orderItems) {
-            if (item.orderID == ID) {
-                items.add(item);
+        try (ObjectInputStream orderItemsOIS = new ObjectInputStream(new FileInputStream(orderItemsTable))) {
+            while (true) {
+                OrderItem item = (OrderItem) orderItemsOIS.readObject();
+                if (item.orderID == ID) {
+                    items.add(item);
+                }
             }
+        }
+
+        catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return items;
@@ -466,10 +505,17 @@ public class DBMS {
     public ArrayList<OrderItem> SelectOrderItemsByItemID(Integer ID) {
         ArrayList<OrderItem> items = new ArrayList<OrderItem>();
 
-        for (OrderItem item : orderItems) {
-            if (item.itemID == ID) {
-                items.add(item);
+        try (ObjectInputStream orderItemsOIS = new ObjectInputStream(new FileInputStream(orderItemsTable))) {
+            while (true) {
+                OrderItem item = (OrderItem) orderItemsOIS.readObject();
+                if (item.itemID == ID) {
+                    items.add(item);
+                }
             }
+        }
+
+        catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         return items;
@@ -477,62 +523,96 @@ public class DBMS {
 
     // UPDATE
     public void UpdateCustomerByID(Integer ID, Scanner scanner) {
+        ArrayList<Customer> customers = SelectCustomers();
+
+        boolean updated = false;
         for (Customer customer : customers) {
             if(customer.ID() == ID) {
                 customer.UpdateAddress(scanner);
                 customer.UpdateEmail(scanner);
                 customer.UpdatePhone(scanner);
-
-                System.out.println("\nCustomer update successful.");
+                updated = true;
 
                 break;
             }
         }
 
-        System.out.println("\nWARNING: Customer not found! [UpdateCustomerByID FAILED]");
+        if (!updated) {
+            System.out.println("\nWARNING: Customer not found! [UpdateCustomerByID FAILED]");
+
+        }
+
+        else {
+            WriteCustomers(customers);
+        }
     }
     public void UpdateCustomerByName(String name, Scanner scanner) {
+        ArrayList<Customer> customers = SelectCustomers();
+
+        boolean updated = false;
         for (Customer customer : customers) {
-            if(customer.Name().strip().equalsIgnoreCase(name.strip())) {
+            if(customer.Name().equalsIgnoreCase(name)) {
                 customer.UpdateAddress(scanner);
                 customer.UpdateEmail(scanner);
                 customer.UpdatePhone(scanner);
-
-                System.out.println("\nCustomer update successful.");
+                updated = true;
 
                 break;
             }
         }
 
-        System.out.println("\nWARNING: Customer not found! [UpdateCustomerByName FAILED]");
+        if (!updated) {
+            System.out.println("\nWARNING: Customer not found! [UpdateCustomerByName FAILED]");
+
+        }
+
+        else {
+            WriteCustomers(customers);
+        }
     }
     public void UpdateBookByID(Integer ID, Integer amount) {
+        ArrayList<Book> books = SelectBooks();
+
+        boolean updated = false;
         for (Book book : books) {
             if(book.ID() == ID) {
                 book.UpdateQty(amount);
-
-                System.out.println("\nBook quantity update successful.");
+                updated = true;
 
                 break;
             }
         }
 
-        System.out.println("\nWARNING: Book not found! [UpdateCustomerByID FAILED]");
+        if (!updated) {
+            System.out.println("\nWARNING: Book not found! [UpdateBookByID FAILED]");
+        }
+
+        else {
+            WriteBooks(books);
+        }
     }
 
     // DELETE
     public void RemoveOrder(Integer ID) {
+        ArrayList<Order> orders = SelectOrders();
+
+        boolean removed = false;
         for (Order order : orders) {
             if(order.ID() == ID) {
                 orders.remove(order);
-
-                System.out.println("\nOrder removed successfully.");
+                removed = true;
 
                 break;
             }
         }
 
-        System.out.println("\nWARNING: Order not found! [RemoveOrder FAILED]");
+        if (!removed) {
+            System.out.println("\nWARNING: Order not found! [RemoveOrder FAILED]");
+        }
+
+        else{
+            WriteOrders(orders);
+        }
     }
     public void RemoverOrderItemByOrderID(Integer ID) {
         ArrayList<OrderItem> orderItems = SelectOrderItems();
@@ -544,6 +624,10 @@ public class DBMS {
             }
         }
 
-        System.out.println("\nOrder items all removed successfully.");
+        WriteOrderItems(orderItems);
     }
+    
+    // Note: Customers don't ever need to be deleted ( we can add this functionality if we really need it, 
+    // like under data privacy rights etc... if this worl the real world). We also don't need to delete book
+    // records, since books, once registered, can just drop to 0 qty.
 }

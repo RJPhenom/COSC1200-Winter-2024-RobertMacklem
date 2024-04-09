@@ -38,23 +38,23 @@ public class Customer implements Serializable {
 
     // GETTERS
     public Integer ID() {
-        return ID;
+        return this.ID;
     }
 
     public String Name() {
-        return name;
+        return this.name;
     }
 
     public String Address() {
-        return address;
+        return this.address;
     }
 
     public String Email() {
-        return email;
+        return this.email;
     }
 
     public Integer Phone() {
-        return phone;
+        return this.phone;
     }
 
     // SETTERS

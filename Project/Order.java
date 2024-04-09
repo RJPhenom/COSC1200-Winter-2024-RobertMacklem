@@ -32,15 +32,15 @@ public class Order implements Serializable {
 
     // GETTERS
     public Integer ID() {
-        return ID;
+        return this.ID;
     }
 
     public Integer CustomerID() {
-        return customerID;
+        return this.customerID;
     }
 
-    public String Date() {
-        return date.toString();
+    public LocalDate Date() {
+        return this.date;
     }
 
     // No setters since order class is constructed on order finalization.

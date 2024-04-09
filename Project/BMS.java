@@ -14,6 +14,7 @@
 // ***************************************************************************************
 import java.util.Scanner;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -34,16 +35,15 @@ public class BMS {
 
     static final String ReportMenu =    "\n" + 
                                         "1. \tGenerate Customer report by name.\n" +
-                                        "2. \tGenerate Customer report by ID.\n" +
-                                        "3. \tGenerate Customers report.\n" +
-                                        "4. \tGenerate last Order\n" +
-                                        "5. \tGenerate past Orders report by date\n" +
-                                        "6. \tGenerate past Orders report (all)\n" +
-                                        "7. \tQuery Book by ISBN\n" +
-                                        "8. \tQuery Book by Title\n" +
-                                        "9. \tQuery Book by Author\n" +
-                                        "10. \tQuery Book by Publisher\n" +
-                                        "11. \tExit to previous menu.\n";
+                                        "2. \tGenerate Customers report.\n" +
+                                        "3. \tGenerate last Order\n" +
+                                        "4. \tGenerate past Orders report by date\n" +
+                                        "5. \tGenerate past Orders report (all)\n" +
+                                        "6. \tQuery Book by ISBN\n" +
+                                        "7. \tQuery Book by Title\n" +
+                                        "8. \tQuery Book by Author\n" +
+                                        "9. \tQuery Book by Publisher\n" +
+                                        "10. \tExit to previous menu.\n";
     // System Messages
     static final String WelcomeMsg =   "\n*************************************************\n" +
                                         "Welcome to Bookstore Management System (BMS) 1.0!" +
@@ -71,7 +71,19 @@ public class BMS {
 
     }};
 
+    static final HashMap<Integer, Runnable> ReportMenuMap = new HashMap<Integer, Runnable>() {{
+        put(1, () -> CustomerNameReport());
+        put(2, () -> CustomersReport());
+        put(3, () -> LastOrderReport());
+        put(4, () -> PastOrdersByDateReport());
+        put(5, () -> PastOrdersReport());
+        put(6, () -> BookISBNReport());
+        put(7, () -> BookTitleReport());
+        put(8, () -> BookAuthorReport());
+        put(9, () -> BookPublisherReport());
+        put(10, exitMethod);
 
+    }};
     // --VARS--
     // Generic scanner (for menu navigation)
     static Scanner scanner = new Scanner(System.in);
@@ -84,7 +96,6 @@ public class BMS {
         System.out.println(WelcomeMsg);     // Print welcome message
         db = new DBMS();                    // Start up our database
         MenuLoop(MainMenu, MainMenuMap);    // Run the menu loop
-        db.Out();                           // Write to files
         System.out.println(ExitMsg);        // Printout an exit message before quitting
     }
 
@@ -124,7 +135,6 @@ public class BMS {
         Book book = newBook(newBookID, ISBN);
         db.InsertBook(book);
     }
-
     private static void AddBooks() {
         boolean finished = false;
         while (!finished) {
@@ -166,7 +176,6 @@ public class BMS {
             }
         }
     }
-
     private static void EditCustomer() {
         System.out.println("\nPlease enter the name of the customer to edit: ");
         String name = scanner.nextLine();
@@ -183,7 +192,6 @@ public class BMS {
             }
         }
     }
-
     private static void NewOrders() {
         boolean finishedOrders = false;
         while (!finishedOrders) {
@@ -198,19 +206,15 @@ public class BMS {
 
             // Handles unidentified (new) customer
             identifiedCustomer = db.SelectCustomerByName(name);
-            if (identifiedCustomer == null) {
-                System.out.println("\nNo existing customer by that name.\nCreating new customer...");
-                Integer newCustomerID = db.GenerateUniqueID(db.Customers());
-                Customer newCustomer = newCustomer(newCustomerID);
-
-                try {
-                    db.InsertCustomer(newCustomer);
-                }
-
-                catch (Exception exception) {
-                    exception.printStackTrace();
+            while (identifiedCustomer == null) {
+                System.out.println("\nWARNING: No customer found.\nCreating new customer record...");
+                int ID = db.GenerateUniqueID(db.Customers());
+                Customer customer = newCustomer(ID);
+                if (db.InsertCustomer(customer)) {
+                    identifiedCustomer = customer;
                 }
             }
+    
 
             // Loop to allow buying multiple items
             boolean finishedItems = false;
@@ -301,7 +305,6 @@ public class BMS {
             }
         }
     }
-
     private static void ReverseOrder() {
         System.out.println("\nPlease enter the Order ID to be reversed: ");
         Integer ID = scanner.nextInt();
@@ -324,6 +327,205 @@ public class BMS {
         }
     }
 
+    // --REPORTS--
+    private static void CustomerNameReport() {
+        String name = "";
+        boolean validName = false;
+        while (!validName) {
+            System.out.println("\nPlease enter customer name: ");
+            String input = scanner.nextLine();
+
+            if (input != "") {
+                name = input;
+                validName = true;
+            }
+
+            else {
+                System.out.println("\n***ERROR*** Name field cannot be NULL.\nPlease try again.");
+            }
+        }
+
+        Customer customer = db.SelectCustomerByName(name);
+        if (customer != null) {
+            customer.SelfReport();
+        }
+
+        else {
+            System.out.println("\nReport Finished: No records found.");
+        }
+    }
+    private static void CustomersReport() {
+        ArrayList<Customer> customers = db.SelectCustomers();
+        boolean found = false;
+        for (Customer customer : customers) {
+            customer.SelfReport();
+            found = true;
+        }
+
+        if (!found) {
+            System.out.println("\nReport Finished: No records found.");
+        }
+    }
+    private static void LastOrderReport() {
+        ArrayList<Order> orders = db.SelectOrders();
+        if (!orders.isEmpty()) {
+            orders.get(orders.size() - 1).SelfReport();
+        }
+
+        else{
+            System.out.println("\nReport Finished: No records found.");
+        }
+    }
+    private static void PastOrdersByDateReport() {
+        LocalDate date = LocalDate.now();
+        boolean validDate = false;
+        while (!validDate) {
+            System.out.println("\nPlease enter the date to query: ");
+            String input = scanner.nextLine();
+
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+                date = LocalDate.parse(input, formatter);
+                validDate = true;
+            }
+
+            catch (Exception exception) {
+                System.out.println("\n***ERROR*** Please use the date format DDMMYYYY.");
+            }
+        }
+
+        boolean found = false;
+        ArrayList<Order> orders = db.SelectOrders();
+        for (Order order : orders) {
+            if (order.Date() == date) {
+                order.SelfReport();
+                found = true;
+            }
+        }
+
+        if (!found) {
+            System.out.println("\nReport Finished: No records found.");
+        }
+    }
+    private static void PastOrdersReport() {
+        ArrayList<Order> orders = db.SelectOrders();
+        boolean found = false;
+        for (Order order : orders) {
+            order.SelfReport();
+            found = true;
+        }
+
+        if (!found) {
+            System.out.println("\nReport Finished: No records found.");
+        }
+    }
+    private static void BookISBNReport() {
+        Long ISBN = 0l;
+        boolean validISBN = false;
+        while (!validISBN) {
+            System.out.println("\nPlease enter the 13 digit ISBN: ");
+            ISBN = scanner.nextLong();
+            scanner.nextLine();
+    
+            if (ISBN <= 999999999999l || ISBN > 9999999999999l) {
+                System.out.println("\n***ERROR*** ISBN must be 13 digits!\nPlease try again.");
+                continue;
+            }
+        }
+
+        Book book = db.SelectBookByISBN(ISBN);
+        if (book != null) {
+            book.SelfReport();
+        }
+
+        else{
+            System.out.println("\nReport Finished: No records found.");
+        }
+    }
+    private static void BookTitleReport() {
+        String title = "";
+        boolean validTitle = false;
+        while (!validTitle) {
+            System.out.println("\nPlease enter book title: ");
+            String input = scanner.nextLine();
+
+            if (input != "") {
+                title = input;
+                validTitle = true;
+            }
+
+            else {
+                System.out.println("\n***ERROR*** Title cannot be NULL.\nPlease try again.");
+            }
+        }
+
+        ArrayList<Book> books = db.SelectBooks();
+        boolean found = false;
+        for (Book book : books) {
+            if (book.Title().equalsIgnoreCase(title)) {
+                book.SelfReport();
+                found = true;
+            }
+        }
+
+        if (!found) {
+            System.out.println("\nReport Finished: No records found.");
+        }
+    }
+    private static void BookAuthorReport() {
+        String author = "";
+        boolean validAuthor = false;
+        while (!validAuthor) {
+            System.out.println("\nPlease enter book author: ");
+            String input = scanner.nextLine();
+
+            if (input != "") {
+                author = input;
+                validAuthor = true;
+            }
+
+            else {
+                System.out.println("\n***ERROR*** Author cannot be NULL.\nPlease try again.");
+            }
+        }
+
+        ArrayList<Book> books = db.SelectBooks();
+        boolean found = false;
+        for (Book book : books) {
+            if (book.Author().equalsIgnoreCase(author)) {
+                book.SelfReport();
+                found = true;
+            }
+        }
+
+        if (!found) {
+            System.out.println("\nReport Finished: No records found.");
+        }
+    }
+    private static void BookPublisherReport() {
+        String publisher = "";
+        boolean validPublisher = false;
+        while (!validPublisher) {
+            System.out.println("\nPlease enter book publisher (NULL accepted): ");
+            String input = scanner.nextLine();
+            publisher = input;
+            validPublisher = true;
+        }
+
+        ArrayList<Book> books = db.SelectBooks();
+        boolean found = false;
+        for (Book book : books) {
+            if (book.Publisher().equalsIgnoreCase(publisher)) {
+                book.SelfReport();
+                found = true;
+            }
+        }
+
+        if (!found) {
+            System.out.println("\nReport Finished: No records found.");
+        }
+    }
+    
     // Input Construcotrs (cannot use scanners for serialized objs)
     private static Customer newCustomer(Integer ID){
         Integer customerID = ID;
