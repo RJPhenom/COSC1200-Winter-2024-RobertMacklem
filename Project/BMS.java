@@ -130,7 +130,7 @@ public class BMS {
     }
 
     // --TRANSACTIONS--
-    private static void AddBook(Long ISBN) {
+    private static void AddBook(String ISBN) {
         Integer newBookID = db.GenerateUniqueID(db.Books());
         Book book = newBook(newBookID, ISBN);
         db.InsertBook(book);
@@ -139,10 +139,9 @@ public class BMS {
         boolean finished = false;
         while (!finished) {
             System.out.println("\nPlease enter the 13 digit ISBN: ");
-            Long ISBN = scanner.nextLong();
-            scanner.nextLine();
+            String ISBN = scanner.nextLine();
 
-            if (ISBN <= 999999999999l || ISBN > 9999999999999l) {
+            if (ISBN.length() < 13) {
                 System.out.println("\n***ERROR*** ISBN must be 13 digits!\nPlease try again.");
                 continue;
             }
@@ -221,8 +220,7 @@ public class BMS {
             while (!finishedItems) {
                 // Get the ISBN (id) of the book and the amount user wants to order
                 System.out.println("\nPlease enter the ISBN of the book to add to your order: \n");
-                Long ISBN = scanner.nextLong();
-                scanner.nextLine() ;
+                String ISBN = scanner.nextLine();
                 System.out.println("\nPlease enter the quantity you'd like to order: \n");
                 int qty = scanner.nextInt();
                 scanner.nextLine();
@@ -420,14 +418,13 @@ public class BMS {
         }
     }
     private static void BookISBNReport() {
-        Long ISBN = 0l;
+        String ISBN = "";
         boolean validISBN = false;
         while (!validISBN) {
             System.out.println("\nPlease enter the 13 digit ISBN: ");
-            ISBN = scanner.nextLong();
-            scanner.nextLine();
+            ISBN = scanner.nextLine();
     
-            if (ISBN <= 999999999999l || ISBN > 9999999999999l) {
+            if (ISBN.length() < 13) {
                 System.out.println("\n***ERROR*** ISBN must be 13 digits!\nPlease try again.");
                 continue;
             }
@@ -607,9 +604,9 @@ public class BMS {
 
         return customer;
     }
-    private static Book newBook(Integer ID, Long ISBN) {
+    private static Book newBook(Integer ID, String ISBN) {
         Integer bookID = ID;
-        Long bookISBN = ISBN;
+        String bookISBN = ISBN;
         String bookTitle = "";
         String bookAuthor = "";
         String bookPublisher = "";

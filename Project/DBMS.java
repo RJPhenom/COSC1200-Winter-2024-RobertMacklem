@@ -447,7 +447,7 @@ public class DBMS {
         
         return identifiedBook;
     }
-    public Book SelectBookByISBN(Long ISBN) {
+    public Book SelectBookByISBN(String ISBN) {
         Book identifiedBook = null;
 
         try (ObjectInputStream bookOIS = new ObjectInputStream(new FileInputStream(booksTable))) {

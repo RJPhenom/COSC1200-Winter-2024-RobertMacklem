@@ -19,7 +19,7 @@ import java.io.Serializable;
 public class Book implements Serializable {
     // PROPERTIES
     private Integer ID = 0;
-    private Long ISBN = 0000000000000l;
+    private String ISBN = "";
     private String title = "";
     private String author = "";
     private String publisher = "";
@@ -27,9 +27,9 @@ public class Book implements Serializable {
     private Integer qty = 0;
 
     // CONSTRUCTOR
-    public Book(Integer bookID, Long ISBN, String title, String author, String publisher, Float price, Integer qty) {
+    public Book(Integer bookID, String ISBN, String title, String author, String publisher, Float price, Integer qty) {
         this.ID = bookID;
-        this.ISBN =ISBN;
+        this.ISBN = ISBN;
         this.title = title;
         this.author = author;
         this.publisher = publisher;
@@ -42,7 +42,7 @@ public class Book implements Serializable {
         return this.ID;
     }
 
-    public Long ISBN() {
+    public String ISBN() {
         return this.ISBN;
     }
 
@@ -79,7 +79,7 @@ public class Book implements Serializable {
     public void SelfReport() {
         String report =
             "Book ID: " + this.ID.toString() + " | " +
-            "ISBN: " + this.ISBN.toString() + " | " +
+            "ISBN: " + this.ISBN + " | " +
             "Title: " + this.title + " | " +
             "Author: " + this.author + " | " +
             "Publisher: " + this.publisher + " | " +
