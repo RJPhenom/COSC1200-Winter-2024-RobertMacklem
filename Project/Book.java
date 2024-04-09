@@ -87,4 +87,16 @@ public class Book implements Serializable {
     
         System.out.println(report);
     }
+
+    public String GetSelfReport() {
+        String report =
+            "Book ID: " + this.ID.toString() + " | " +
+            "ISBN: " + this.ISBN + " | " +
+            "Title: " + this.title + " | " +
+            "Author: " + this.author + " | " +
+            "Publisher: " + this.publisher + " | " +
+            "Price: " + String.format("$%.2f", price);
+
+        return report;
+    }
 }

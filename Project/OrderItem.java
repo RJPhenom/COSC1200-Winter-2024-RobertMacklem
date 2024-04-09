@@ -27,4 +27,12 @@ public class OrderItem implements Serializable {
         this.itemID = iID;
         this.qty = qty;
     }
+
+    public String GetSelfReport() {
+        String report =
+            "\nQty. " + this.qty.toString() + " | " +
+            "Item ID#" + this.itemID.toString() + " | ";
+
+        return report;
+    }
 }

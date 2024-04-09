@@ -141,6 +141,7 @@ public class DBMS {
         int tableIndex = IdentifyTable(table);
         switch (tableIndex) {
             case 0:
+                ArrayList<Order> orders = SelectOrders();
                 for (Order order : orders) {
                     if (order.ID() == ID) {
                         duplicate = true;
@@ -151,6 +152,7 @@ public class DBMS {
                 break;
 
             case 1:
+                ArrayList<Customer>  customers = SelectCustomers();
                 for (Customer customer : customers) {
                     if (customer.ID() == ID) {
                         duplicate = true;
@@ -161,6 +163,7 @@ public class DBMS {
                 break;
 
             case 2:
+                ArrayList<Book> books = SelectBooks();
                 for (Book book : books) {
                     if (book.ID() == ID) {
                         duplicate = true;

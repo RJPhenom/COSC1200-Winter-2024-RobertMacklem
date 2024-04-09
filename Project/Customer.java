@@ -93,7 +93,7 @@ public class Customer implements Serializable {
             try {
                 Integer input = scanner.nextInt();
                 scanner.nextLine();
-                if (input > 999999999) {
+                if (input < 999999999) {
                     this.phone = input;
                 }
                 

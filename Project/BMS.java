@@ -58,7 +58,7 @@ public class BMS {
     // Menu Hashmaps
     static final HashMap<Integer, Runnable> MainMenuMap = new HashMap<Integer, Runnable>() {{
         put(1, () -> MenuLoop(TransactMenu, TransactMenuMap));  // lambdas let us run submenus out of a dict (noice)
-        put(2, () -> MenuLoop(ReportMenu, MainMenuMap));
+        put(2, () -> MenuLoop(ReportMenu, ReportMenuMap));
         put(3, exitMethod);
     }};
 
@@ -287,7 +287,7 @@ public class BMS {
                     db.InsertOrderItem(orderItem);
                 }
 
-                System.out.println("\nOrder submission successful.");
+                PrintReceipt(order, itemsForOrder);
             }
 
             catch (Exception exception) {
@@ -579,7 +579,7 @@ public class BMS {
             try {
                 Integer input = scanner.nextInt();
                 scanner.nextLine();
-                if (input > 999999999) {
+                if (input < 999999999) {
                     customerPhone = input;
                     validPhone = true;
                 }
@@ -703,5 +703,38 @@ public class BMS {
         System.out.println(    "******************************************");
 
         return book;
+    }
+
+    // --PRINT RECEIPT--
+    private static void PrintReceipt(Order order, ArrayList<OrderItem> items) {
+        Customer customer = db.SelectCustomerByID(order.CustomerID());
+        System.out.println("\n\n---------------CUSTOMER RECEIPT-------------------------" +
+            "\n\tDATE: " +
+            LocalDate.now().toString() +
+            "\n\tORDER #" + order.ID().toString() +
+            "\n\tCUSTOMER: \t" + customer.Name() +
+            "\n\tSHIPPING\n\tADDRESS: \t" + customer.Address() +
+            "\n\tTEL #: \t" + customer.Phone().toString() +
+            "\n\tEMAIL: \t" + customer.Email() +
+            "\n" +
+            "\n---------------------ORDER ITEMS------------------------\n"
+        );
+
+        Float subtotal = 0.0f;
+        for (OrderItem item : items) {
+            Book book = db.SelectBookByID(item.itemID);
+            subtotal += book.Price();
+            String itemReport = item.GetSelfReport() + book.GetSelfReport();
+
+            System.out.println(itemReport);
+        }
+
+        System.out.println("\n-------------------COST SUMMARY-------------------------" + 
+            "\n\tSUBTOTAL: \t" + String.format("$%.2f", subtotal) +
+            "\n\tGST: \t" + String.format("$%.2f", subtotal * 0.13) +
+            "\n********************************************************" +
+            "\n***GRAND TOTAL***\t\t" + String.format("$%.2f", subtotal * 1.13) +
+            "\n********************************************************"
+        );
     }
 }
