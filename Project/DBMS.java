@@ -185,6 +185,7 @@ public class DBMS {
 
         switch (tableIndex) {
             case 0:
+                ArrayList<Order> orders = SelectOrders();
                 for (Order order : orders) {
                     if (order.ID() >= highestID) {
                         highestID = order.ID() + 1;
@@ -194,6 +195,7 @@ public class DBMS {
                 return highestID;
 
             case 1:
+                ArrayList<Customer> customers = SelectCustomers();
                 for (Customer customer : customers) {
                     if (customer.ID() >= highestID) {
                         highestID = customer.ID() + 1;
@@ -203,6 +205,7 @@ public class DBMS {
                 return highestID;
 
             case 2:
+                ArrayList<Book> books = SelectBooks();
                 for (Book book : books) {
                     if (book.ID() >= highestID) {
                         highestID = book.ID() + 1;
