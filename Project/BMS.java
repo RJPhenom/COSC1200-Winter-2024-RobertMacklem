@@ -226,41 +226,34 @@ public class BMS {
                 scanner.nextLine();
 
                 // Lookup the book if its in stock (or exists)
-                boolean bookFound = false;
-                ArrayList<Book> books = db.SelectBooks();
-                for (Book book : books) {
-                    if (book.ISBN() == ISBN) {
-                        bookFound = true;
+                Book book = db.SelectBookByISBN(ISBN);
+                if (book != null) {
+                    // Make sure there is enough stock
+                    if (book.Qty() >= qty) {
+                        OrderItem item = new OrderItem(orderID, book.ID(), qty);
+                        itemsForOrder.add(item);
+                    }
 
-                        // Make sure there is enough stock
-                        if (book.Qty() >= qty) {
+                    else if (book.Qty() == 0) {
+                        System.out.println("\nWARNING: Sorry, we are out of stock for that book.");
+                    }
+
+                    else {
+                        System.out.println("\nWARNING: Not enough books in stock. Buy remaining stock? (Enter 'Y' to accept): \n");
+                        String decision = scanner.nextLine();
+
+                        if (decision.equalsIgnoreCase("Y")) {
+                            qty = book.Qty();
                             OrderItem item = new OrderItem(orderID, book.ID(), qty);
                             itemsForOrder.add(item);
+                            book.UpdateQty(qty * -1);
+
+                            System.out.println("\nRemaining stock added.\n");
                         }
-
-                        else if (book.Qty() == 0) {
-                            System.out.println("\nWARNING: Sorry, we are out of stock for that book.");
-                        }
-
-                        else {
-                            System.out.println("\nWARNING: Not enough books in stock. Buy remaining stock? (Enter 'Y' to accept): \n");
-                            String decision = scanner.nextLine();
-
-                            if (decision.equalsIgnoreCase("Y")) {
-                                qty = book.Qty();
-                                OrderItem item = new OrderItem(orderID, book.ID(), qty);
-                                itemsForOrder.add(item);
-                                book.UpdateQty(qty * -1);
-
-                                System.out.println("\nRemaining stock added.\n");
-                            }
-                        }
-
-                        break;
                     }
                 }
 
-                if (!bookFound) {
+                else {
                     System.out.println("\nWARNING: Sorry, we do not have any records for that book.\nYou might need to try another bookstore.");
                 }
 
@@ -277,6 +270,7 @@ public class BMS {
                 }
             }
 
+            System.out.println(identifiedCustomer.ID().toString());
             try {
                 // Gen the order record and insert
                 Order order = new Order(orderID, identifiedCustomer.ID(), LocalDate.now());
@@ -426,7 +420,10 @@ public class BMS {
     
             if (ISBN.length() < 13) {
                 System.out.println("\n***ERROR*** ISBN must be 13 digits!\nPlease try again.");
-                continue;
+            }
+
+            else {
+                validISBN = true;
             }
         }
 
@@ -523,13 +520,13 @@ public class BMS {
         }
     }
     
-    // Input Construcotrs (cannot use scanners for serialized objs)
+    // Input Constructors (cannot use scanners for serialized objs)
     private static Customer newCustomer(Integer ID){
         Integer customerID = ID;
         String customerName = "";
         String customerAddr = "";
         String customerEmail = "";
-        Integer customerPhone = 0;
+        String customerPhone = "";
 
         // Set name via input
         boolean validName = false;
@@ -576,23 +573,9 @@ public class BMS {
         boolean validPhone = false;
         while (!validPhone) {
             System.out.println("\nPlease enter customer phone # (digits only): ");
-            try {
-                Integer input = scanner.nextInt();
-                scanner.nextLine();
-                if (input < 999999999) {
-                    customerPhone = input;
-                    validPhone = true;
-                }
-                
-                
-                else {
-                    System.out.println("\n***ERROR*** Phone # must be at least 10 digits.\nPlease try again.");
-                }
-            }
-
-            catch (Exception exception) {
-                System.out.println("\n***ERROR*** Phone # must be entered using DIGITS only. (EXAMPLE: 18005551234)\nPlease try again.");
-            }
+            customerPhone = scanner.nextLine();
+            scanner.nextLine();
+            validPhone = true;
         }
 
         Customer customer = new Customer(customerID, customerName, customerAddr, customerEmail, customerPhone);
@@ -708,32 +691,34 @@ public class BMS {
     // --PRINT RECEIPT--
     private static void PrintReceipt(Order order, ArrayList<OrderItem> items) {
         Customer customer = db.SelectCustomerByID(order.CustomerID());
-        System.out.println("\n\n---------------CUSTOMER RECEIPT-------------------------" +
-            "\n\tDATE: " +
+        System.out.println("\n\n------------------CUSTOMER RECEIPT----------------------\n" +
+            "\n\tDATE: \t\t" +
             LocalDate.now().toString() +
-            "\n\tORDER #" + order.ID().toString() +
+            "\n\tORDER #\t\t" + order.ID().toString() +
             "\n\tCUSTOMER: \t" + customer.Name() +
             "\n\tSHIPPING\n\tADDRESS: \t" + customer.Address() +
-            "\n\tTEL #: \t" + customer.Phone().toString() +
-            "\n\tEMAIL: \t" + customer.Email() +
-            "\n" +
-            "\n---------------------ORDER ITEMS------------------------\n"
+            "\n\tTEL #: \t\t" + customer.Phone() +
+            "\n\tEMAIL: \t\t" + customer.Email() +
+            "\n\n---------------------ORDER ITEMS------------------------\n"
         );
 
+        Integer orderQty = 0;
         Float subtotal = 0.0f;
         for (OrderItem item : items) {
             Book book = db.SelectBookByID(item.itemID);
             subtotal += book.Price();
+            orderQty++;
             String itemReport = item.GetSelfReport() + book.GetSelfReport();
 
             System.out.println(itemReport);
         }
 
-        System.out.println("\n-------------------COST SUMMARY-------------------------" + 
-            "\n\tSUBTOTAL: \t" + String.format("$%.2f", subtotal) +
-            "\n\tGST: \t" + String.format("$%.2f", subtotal * 0.13) +
+        System.out.println("\nTOTAL ITEM QUANITY: \t" + orderQty.toString());
+        System.out.println("\n---------------------COST SUMMARY-----------------------\n" + 
+            "\nSUBTOTAL: \t\t\t\t" + String.format("$%.2f", subtotal) +
+            "\nGST: \t\t\t\t\t" + String.format("$%.2f", subtotal * 0.13) +
             "\n********************************************************" +
-            "\n***GRAND TOTAL***\t\t" + String.format("$%.2f", subtotal * 1.13) +
+            "\n***GRAND TOTAL***\t\t\t" + String.format("$%.2f", subtotal * 1.13) +
             "\n********************************************************"
         );
     }

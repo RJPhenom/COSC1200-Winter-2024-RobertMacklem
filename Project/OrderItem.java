@@ -29,10 +29,8 @@ public class OrderItem implements Serializable {
     }
 
     public String GetSelfReport() {
-        String report =
-            "\nQty. " + this.qty.toString() + " | " +
-            "Item ID#" + this.itemID.toString() + " | ";
-
+        String report = "\nQty. " + this.qty.toString() + " | ";
+        
         return report;
     }
 }

@@ -23,10 +23,10 @@ public class Customer implements Serializable {
     private String name = "";
     private String address = "";
     private String email = "";
-    private Integer phone = 0;
+    private String phone = "";
 
     // CONSTRUCTOR
-    public Customer(Integer customerID, String name, String address, String email, Integer phone) {
+    public Customer(Integer customerID, String name, String address, String email, String phone) {
         this.ID = customerID;
         this.name = name;
         this.address = address;
@@ -53,7 +53,7 @@ public class Customer implements Serializable {
         return this.email;
     }
 
-    public Integer Phone() {
+    public String Phone() {
         return this.phone;
     }
 
@@ -90,33 +90,19 @@ public class Customer implements Serializable {
         boolean validPhone = false;
         while (!validPhone) {
             System.out.println("\nPlease enter customer phone # (digits only): ");
-            try {
-                Integer input = scanner.nextInt();
-                scanner.nextLine();
-                if (input < 999999999) {
-                    this.phone = input;
-                }
-                
-                
-                else {
-                    System.out.println("\n***ERROR*** Phone # must be at least 10 digits.\nPlease try again.]n");
-                }
-            }
-
-            catch (Exception exception) {
-                System.out.println("\n***ERROR*** Phone # must be entered using DIGITS only. (EXAMPLE: 18005551234)\nPlease try again.\n");
-            }
+            this.phone = scanner.nextLine();
+            validPhone = true;
         }
     }
 
     // Reporting
     public void SelfReport() {
         String report =
-            "Book ID: " + this.ID.toString() + " | " +
+            "Customer ID: " + this.ID.toString() + " | " +
             "Name: " + this.name + " | " +
             "Address: " + this.address + " | " +
             "Email: " + this.email + " | " +
-            "Phone: " + this.phone.toString() + " | ";
+            "Phone: " + this.phone.toString();
 
         System.out.println(report);
     }

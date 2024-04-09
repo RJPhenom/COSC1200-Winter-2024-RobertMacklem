@@ -48,7 +48,7 @@ public class DBMS {
                     System.out.println("File created: " + table.getName());
                 } 
                 
-                catch (IOException exception) {
+                catch (Exception exception) {
                     System.out.println("An error occurred while creating the file.");
                 }
             }
@@ -77,11 +77,11 @@ public class DBMS {
                 orderOOS.writeObject(order);
             }
 
-            System.out.println("\nOrder written successfully.");
+            //System.out.println("\nOrder written successfully.");
         }
 
         catch (Exception exception) {
-            exception.printStackTrace();
+            //exception.printStackTrace();
         }
     }
     private void WriteCustomers(ArrayList<Customer> customers) {
@@ -90,11 +90,11 @@ public class DBMS {
                 customerOOS.writeObject(customer);
             }
 
-            System.out.println("\nCustomers written successfully.");
+            //System.out.println("\nCustomers written successfully.");
         }
 
         catch (Exception exception) {
-            exception.printStackTrace();
+            //exception.printStackTrace();
         }
     }
     private void WriteBooks(ArrayList<Book> books) {
@@ -103,11 +103,11 @@ public class DBMS {
                 bookOOS.writeObject(book);
             }
 
-            System.out.println("\nBooks written successfully.");
+            //System.out.println("\nBooks written successfully.");
         }
 
         catch (Exception exception) {
-            exception.printStackTrace();
+            //exception.printStackTrace();
         }
     }
     private void WriteOrderItems(ArrayList<OrderItem> items) {
@@ -116,11 +116,11 @@ public class DBMS {
                 oiOOS.writeObject(item);
             }
 
-            System.out.println("\nOrder items written successfully.");
+            //System.out.println("\nOrder items written successfully.");
         }
 
         catch (Exception exception) {
-            exception.printStackTrace();
+            //exception.printStackTrace();
         }
     }
 
@@ -322,7 +322,7 @@ public class DBMS {
         }
 
         catch (Exception exception) {
-            exception.printStackTrace();
+            //exception.printStackTrace();
         }
 
         return orders;
@@ -333,9 +333,9 @@ public class DBMS {
         try (ObjectInputStream orderOIS = new ObjectInputStream(new FileInputStream(ordersTable))) {
             while (true) {
                 Order order = (Order) orderOIS.readObject();
-                if (order.ID() == ID) {
+                if (order.ID().equals(ID)) {
                     identifiedOrder = order;
-                    System.out.println("\nCustomer found!");
+                    //System.out.println("\nCustomer found!");
 
                     break;
                 }
@@ -344,7 +344,7 @@ public class DBMS {
 
         catch (Exception exception) {
             System.out.println("\nWARNING: Order not found! [SelectOrderByID FAILED]");
-            exception.printStackTrace();
+            //exception.printStackTrace();
         }
 
         return identifiedOrder;
@@ -361,7 +361,7 @@ public class DBMS {
         }
 
         catch (Exception exception) {
-            exception.printStackTrace();
+            //exception.printStackTrace();
         }
 
         return customers;
@@ -372,18 +372,18 @@ public class DBMS {
         try (ObjectInputStream customerOIS = new ObjectInputStream(new FileInputStream(customersTable))) {
             while (true) {
                 Customer customer = (Customer) customerOIS.readObject();
-                if (customer.ID() == ID) {
+                if (customer.ID().equals(ID)) {
                     identifiedCustomer = customer;
-                    System.out.println("\nCustomer found!");
+                    //System.out.println("\nCustomer found!");
 
-                    break;
+                    return identifiedCustomer;
                 }
             }
         }
 
         catch (Exception exception) {
-            System.out.println("\nWARNING: Customer not found! [SelectCustomerByID FAILED]");
-            exception.printStackTrace();
+            System.out.println("\nWARNING: Customer not found! [SelectCustomerByName FAILED]");
+            //exception.printStackTrace();
         }
         
         return identifiedCustomer;
@@ -396,16 +396,16 @@ public class DBMS {
                 Customer customer = (Customer) customerOIS.readObject();
                 if (customer.Name().equalsIgnoreCase(name)) {
                     identifiedCustomer = customer;
-                    System.out.println("\nCustomer found!");
+                    //System.out.println("\nCustomer found!");
 
-                    break;
+                    return identifiedCustomer;
                 }
             }
         }
 
         catch (Exception exception) {
             System.out.println("\nWARNING: Customer not found! [SelectCustomerByName FAILED]");
-            exception.printStackTrace();
+            //exception.printStackTrace();
         }
         
         return identifiedCustomer;
@@ -422,7 +422,7 @@ public class DBMS {
         }
 
         catch (Exception exception) {
-            exception.printStackTrace();
+            //exception.printStackTrace();
         }
 
         return books;
@@ -433,9 +433,9 @@ public class DBMS {
         try (ObjectInputStream bookOIS = new ObjectInputStream(new FileInputStream(booksTable))) {
             while (true) {
                 Book book = (Book) bookOIS.readObject();
-                if (book.ID() == ID) {
+                if (book.ID().equals(ID)) {
                     identifiedBook = book;
-                    System.out.println("\nBook found!");
+                    //System.out.println("\nBook found!");
 
                     break;
                 }
@@ -443,10 +443,10 @@ public class DBMS {
         }
 
         catch (Exception exception) {
-            exception.printStackTrace();
+            System.out.println("\nWARNING: Book not found! [SelectBookByID FAILED]");
+            //exception.printStackTrace();
         }
 
-        System.out.println("\nWARNING: Book not found! [SelectCustomerByID FAILED]");
         
         return identifiedBook;
     }
@@ -456,9 +456,9 @@ public class DBMS {
         try (ObjectInputStream bookOIS = new ObjectInputStream(new FileInputStream(booksTable))) {
             while (true) {
                 Book book = (Book) bookOIS.readObject();
-                if (book.ISBN() == ISBN) {
+                if (book.ISBN().equalsIgnoreCase(ISBN)) {
                     identifiedBook = book;
-                    System.out.println("\nBook found!");
+                    //System.out.println("\nBook found!");
                     
                     break;
                 }
@@ -466,10 +466,10 @@ public class DBMS {
         }
 
         catch (Exception exception) {
-            exception.printStackTrace();
+            System.out.println("\nWARNING: Book not found! [SelectBookByISBN FAILED]");
+            //exception.printStackTrace();
         }
 
-        System.out.println("\nWARNING: Book not found! [SelectCustomerByID FAILED]");
         
         return identifiedBook;
     }
@@ -485,7 +485,7 @@ public class DBMS {
         }
 
         catch (Exception exception) {
-            exception.printStackTrace();
+            //exception.printStackTrace();
         }
         
         return items;
@@ -496,14 +496,14 @@ public class DBMS {
         try (ObjectInputStream orderItemsOIS = new ObjectInputStream(new FileInputStream(orderItemsTable))) {
             while (true) {
                 OrderItem item = (OrderItem) orderItemsOIS.readObject();
-                if (item.orderID == ID) {
+                if (item.orderID.equals(ID)) {
                     items.add(item);
                 }
             }
         }
 
         catch (Exception exception) {
-            exception.printStackTrace();
+            //exception.printStackTrace();
         }
 
         return items;
@@ -514,14 +514,14 @@ public class DBMS {
         try (ObjectInputStream orderItemsOIS = new ObjectInputStream(new FileInputStream(orderItemsTable))) {
             while (true) {
                 OrderItem item = (OrderItem) orderItemsOIS.readObject();
-                if (item.itemID == ID) {
+                if (item.itemID.equals(ID)) {
                     items.add(item);
                 }
             }
         }
 
         catch (Exception exception) {
-            exception.printStackTrace();
+            //exception.printStackTrace();
         }
 
         return items;
@@ -581,7 +581,7 @@ public class DBMS {
 
         boolean updated = false;
         for (Book book : books) {
-            if(book.ID() == ID) {
+            if(book.ID().equals(ID)) {
                 book.UpdateQty(amount);
                 updated = true;
 
@@ -604,7 +604,7 @@ public class DBMS {
 
         boolean removed = false;
         for (Order order : orders) {
-            if(order.ID() == ID) {
+            if(order.ID().equals(ID)) {
                 orders.remove(order);
                 removed = true;
 
@@ -624,7 +624,7 @@ public class DBMS {
         ArrayList<OrderItem> orderItems = SelectOrderItems();
 
         for (OrderItem orderItem : orderItems) {
-            if (orderItem.orderID == ID) {
+            if (orderItem.orderID.equals(ID)) {
                 UpdateBookByID(orderItem.itemID, orderItem.qty);  // Reverse book qty subtraction
                 orderItems.remove(orderItem);
             }
